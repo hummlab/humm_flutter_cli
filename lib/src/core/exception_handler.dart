@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:humm_cli/src/core/exceptions.dart';
+import 'package:humm/src/core/exceptions.dart';
 import 'package:mason_logger/mason_logger.dart';
 
 /// A class responsible for handling exceptions and logging error messages.

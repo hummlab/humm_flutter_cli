@@ -1,4 +1,4 @@
-name: humm_cli
+name: humm
 description: Humm cli package
 version: 1.0.1+2
 publish_to: none
@@ -27,4 +27,4 @@ dev_dependencies:
 
 
 executables:
-  humm_cli:
+  humm:

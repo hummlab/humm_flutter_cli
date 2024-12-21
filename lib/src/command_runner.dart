@@ -1,24 +1,24 @@
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:cli_completion/cli_completion.dart';
-import 'package:humm_cli/src/commands/commands.dart';
-import 'package:humm_cli/src/commands/notify_slack/notify_slack_with_error_command.dart';
-import 'package:humm_cli/src/commands/release/prod_changelog_command.dart';
+import 'package:humm/src/commands/commands.dart';
+import 'package:humm/src/commands/notify_slack/notify_slack_with_error_command.dart';
+import 'package:humm/src/commands/release/prod_changelog_command.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:pub_updater/pub_updater.dart';
 
-const executableName = 'humm_cli';
-const packageName = 'humm_cli';
+const executableName = 'humm';
+const packageName = 'humm';
 const description = 'Humm cli package';
 
-/// {@template humm_cli_command_runner}
+/// {@template humm_command_runner}
 /// Custom [CommandRunner] for the Humm CLI.
 ///
 /// Provides the base functionality for executing commands, parsing arguments,
 /// and handling errors.
 /// {@endtemplate}
 class HummCliCommandRunner extends CompletionCommandRunner<int> {
-  /// {@macro humm_cli_command_runner}
+  /// {@macro humm_command_runner}
   HummCliCommandRunner({
     Logger? logger,
     PubUpdater? pubUpdater,

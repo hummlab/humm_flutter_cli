@@ -1,4 +1,4 @@
-name: humm_cli
+name: humm
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -7,7 +7,7 @@ concurrency:
 on:
   pull_request:
     paths:
-      - ".github/workflows/humm_cli.yaml"
+      - ".github/workflows/humm.yaml"
       - "lib/**"
       - "test/**"
       - "pubspec.yaml"
@@ -15,7 +15,7 @@ on:
     branches:
       - main
     paths:
-      - ".github/workflows/humm_cli.yaml"
+      - ".github/workflows/humm.yaml"
       - "lib/**"
       - "test/**"
       - "pubspec.yaml"
