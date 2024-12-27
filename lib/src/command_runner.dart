@@ -37,6 +37,7 @@ class HummCliCommandRunner extends CompletionCommandRunner<int> {
     addCommand(NotifySlackCommand(logger: _logger));
     addCommand(NotifySlackWithErrorCommand(logger: _logger));
     addCommand(InvalidateCloudCommand(logger: _logger));
+    addCommand(ChangelogCommand(logger: _logger));
   }
 
   /// Logger instance used for output and logging.
