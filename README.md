@@ -18,40 +18,40 @@ dart pub global activate --source path .
 
 ```sh
 # Basic release command
-$ humm release
+$ humm_cli release
 
 # Release command options
-$ humm release --set-version $version # Default increases by 1
-$ humm release --branch $branch # Default is develop
-$ humm release --tag-prefix $tag
-$ humm release --set-bn $build_number # Set specific build number
+$ humm_cli release --set-version $version # Default increases by 1
+$ humm_cli release --branch $branch # Default is develop
+$ humm_cli release --tag-prefix $tag
+$ humm_cli release --set-bn $build_number # Set specific build number
 ```
 
 ### Changelog
 
 ```sh
 # Production changelog command
-$ humm prod_changelog --version $version # Set version
+$ humm_cli prod_changelog --version $version # Set version
 ```
 
 ### Slack Notifications
 
 ```sh
 # Send changelog to Slack
-$ humm notify_slack --appName PROJECT_NAME
+$ humm_cli notify_slack --appName PROJECT_NAME
 
 # Send custom message to Slack
-$ humm notify_slack --appName PROJECT_NAME --message "message_content"
+$ humm_cli notify_slack --appName PROJECT_NAME --message "message_content"
 
 # Send error notification
-$ humm notify_slack_error --appName PROJECT_NAME
+$ humm_cli notify_slack_error --appName PROJECT_NAME
 ```
 
 ### Cache Invalidation
 
 ```sh
 # Invalidate CloudFront cache
-$ humm invalidate
+$ humm_cli invalidate
 ```
 
 ---
