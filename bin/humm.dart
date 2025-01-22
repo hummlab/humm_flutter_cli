@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:humm_cli/src/command_runner.dart';
+import 'package:humm/src/command_runner.dart';
 
 Future<void> main(List<String> args) async {
   await _flushThenExit(await HummCliCommandRunner().run(args));
@@ -13,6 +13,5 @@ Future<void> main(List<String> args) async {
 /// exited already. This is useful to prevent Future chains from proceeding
 /// after you've decided to exit.
 Future<void> _flushThenExit(int status) {
-  return Future.wait<void>([stdout.close(), stderr.close()])
-      .then<void>((_) => exit(status));
+  return Future.wait<void>([stdout.close(), stderr.close()]).then<void>((_) => exit(status));
 }

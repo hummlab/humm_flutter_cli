@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:humm_cli/src/core/exceptions.dart';
+import 'package:humm/src/core/exceptions.dart';
 
 /// Extension to format `DateTime` into a simple string representation.
 extension DateTimeExtension on DateTime {
