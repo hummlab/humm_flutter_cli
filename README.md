@@ -32,6 +32,9 @@ $ humm release --set-bn $build_number # Set specific build number
 ```sh
 # Production changelog command
 $ humm prod_changelog --version $version # Set version
+
+# Get changelog for specific version
+$ humm changelog $version # e.g., humm changelog 7.11.2
 ```
 
 ### Slack Notifications

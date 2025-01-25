@@ -39,6 +39,7 @@ class HummCliCommandRunner extends CompletionCommandRunner<int> {
     addCommand(InvalidateCloudCommand(logger: _logger));
     addCommand(CheckTranslationsCommand(logger: _logger));
     addCommand(CheckStaticStringsCommands(logger: _logger));
+    addCommand(ChangelogCommand(logger: _logger));
   }
 
   /// Logger instance used for output and logging.
