@@ -50,6 +50,20 @@ $ humm notify_slack --appName PROJECT_NAME --message "message_content"
 $ humm notify_slack_error --appName PROJECT_NAME
 ```
 
+
+### Check translations
+
+```sh
+# Check integration for all .arb files in project
+humm check_translations
+```
+
+### Check strings
+
+```sh
+# Search and display all static strings used in widgets
+```
+
 ### Cache Invalidation
 
 ```sh

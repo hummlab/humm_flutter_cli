@@ -79,6 +79,7 @@ class ReleaseCommand extends Command<int> {
         version: version,
         prefixRaw: releaseOptions.prefixRaw,
       );
+
       _logger.success('Updated changelog');
 
       _logger.info('Committing pre-release updates...');

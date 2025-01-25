@@ -56,7 +56,7 @@ class InvalidateCloudCommand extends Command<int> {
         _logger.err(invalidateResult.stderr);
         throw Exception('Error during CloudFront invalidation');
       }
-      
+
       _logger.success('Cache successfully invalidated');
       return ExitCode.success.code;
     } on Exception catch (e) {
