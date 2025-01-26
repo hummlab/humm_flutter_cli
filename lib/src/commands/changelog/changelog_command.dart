@@ -69,7 +69,7 @@ class ChangelogCommand extends Command<int> {
 
       return ExitCode.success.code;
     } on Exception catch (e) {
-      final exceptionHandler = ExceptionHandler(logger: _logger);
+      final ExceptionHandler exceptionHandler = ExceptionHandler(logger: _logger);
       return exceptionHandler.handleException(e);
     }
   }

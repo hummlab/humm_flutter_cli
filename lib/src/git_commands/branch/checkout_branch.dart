@@ -14,7 +14,7 @@ Future<void> checkoutToBranch(String branch) async {
   // Get the list of all branches (local and remote)
   final ProcessResult branchListResult = await Process.run(
     'git',
-    ['branch', '-a'],
+    <String>['branch', '-a'],
   );
 
   // If the branch list command fails, print the error and exit
@@ -24,8 +24,10 @@ Future<void> checkoutToBranch(String branch) async {
   }
 
   // Extract the branch names from the command output
-  final branches =
-      (branchListResult.stdout as String).split('\n').map((branch) => branch.replaceAll('*', '').trim()).toList();
+  final List<String> branches = (branchListResult.stdout as String)
+      .split('\n')
+      .map((String branch) => branch.replaceAll('*', '').trim())
+      .toList();
 
   // Check if the specified branch exists
   if (!branches.contains(branch)) {
@@ -36,7 +38,7 @@ Future<void> checkoutToBranch(String branch) async {
   // Get the name of the current branch
   final ProcessResult branchResult = await Process.run(
     'git',
-    ['branch', '--show-current'],
+    <String>['branch', '--show-current'],
   );
 
   // If the branch check command fails, print the error and exit
@@ -45,13 +47,13 @@ Future<void> checkoutToBranch(String branch) async {
     exit(1);
   }
 
-  final currentBranch = (branchResult.stdout as String).trim();
+  final String currentBranch = (branchResult.stdout as String).trim();
 
   // Switch to the specified branch if not already on it
   if (currentBranch != branch) {
     final ProcessResult switchResult = await Process.run(
       'git',
-      ['checkout', branch],
+      <String>['checkout', branch],
     );
 
     // If switching branches fails, print the error and exit

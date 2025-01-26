@@ -58,7 +58,7 @@ class NotifySlackWithErrorCommand extends Command<int> {
   @override
   Future<int> run() async {
     try {
-      final appName = argResults!['appName'] as String;
+      final String appName = argResults!['appName'] as String;
 
       // Check if any Slack webhooks are configured
       if (!EnvironmentConfig.hasAnyWebhooks()) {
@@ -68,7 +68,7 @@ class NotifySlackWithErrorCommand extends Command<int> {
       }
 
       // Retrieve the webhook URL for the specified application
-      final webhook = EnvironmentConfig.getSlackWebhook(appName);
+      final String? webhook = EnvironmentConfig.getSlackWebhook(appName);
       if (webhook == null) {
         _logger.err('Available apps: ${EnvironmentConfig.getAvailableApps().join(", ")}');
         throw WebhookNotFoundException('Webhook not found for: $appName');
@@ -85,15 +85,16 @@ class NotifySlackWithErrorCommand extends Command<int> {
       // Send an error notification to Slack with the version and app name
       await http.post(
         Uri.parse(webhook),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(
-            {'text': 'Something went wrong during the creation of version: $currentVersion for project: $appName\n'}),
+        headers: <String, String>{'Content-Type': 'application/json'},
+        body: json.encode(<String, String>{
+          'text': 'Something went wrong during the creation of version: $currentVersion for project: $appName\n'
+        }),
       );
 
       _logger.success('Error notification sent');
       return ExitCode.success.code;
     } on Exception catch (e) {
-      final exceptionHandler = ExceptionHandler(logger: _logger);
+      final ExceptionHandler exceptionHandler = ExceptionHandler(logger: _logger);
       return exceptionHandler.handleException(e);
     }
   }

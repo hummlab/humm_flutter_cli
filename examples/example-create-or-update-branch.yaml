@@ -1,0 +1,105 @@
+# CODE BELOW IS EXAMPLE FOR MONOREPOS WITH 2+ apps
+
+name: Create Or Update Release Branches
+
+on:
+  push:
+    branches:
+      - develop # If another branch change it also in code below
+
+jobs:
+  handle-releases:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Git Config
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+
+      - name: Detect Changes and Extract Versions
+        id: detect_changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          APP1_CHANGES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^app1/' | wc -l)
+          APP2_CHANGES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^app2/' | wc -l)
+
+          APP1_VERSION=""
+          APP2_VERSION=""
+
+          if [ -f "app1/pubspec.yaml" ]; then
+            APP1_VERSION=$(grep '^version: ' "app1/pubspec.yaml" | awk '{print $2}' | cut -d+ -f1)
+          fi
+
+          if [ -f "app2/pubspec.yaml" ]; then
+            APP2_VERSION=$(grep '^version: ' "app2/pubspec.yaml" | awk '{print $2}' | cut -d+ -f1)
+          fi
+
+          echo "App1 changes: $APP1_CHANGES"
+          echo "App2 changes: $APP2_CHANGES"
+          echo "App1 version: $APP1_VERSION"
+          echo "App2 version: $APP2_VERSION"
+
+          echo "app1_changes=$APP1_CHANGES" >> $GITHUB_ENV
+          echo "app2_changes=$APP2_CHANGES" >> $GITHUB_ENV
+          echo "app1_version=$APP1_VERSION" >> $GITHUB_ENV
+          echo "app2_version=$APP2_VERSION" >> $GITHUB_ENV
+
+      - name: Create or Update Release Branches
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          create_release_branch() {
+            local component="$1"
+            local current_version="$2"
+
+            if [ -z "$current_version" ]; then
+              echo "No version found for $component. Skipping."
+              return
+            fi
+
+            CURRENT_MAJOR=$(echo "$current_version" | cut -d'.' -f1)
+            CURRENT_MINOR=$(echo "$current_version" | cut -d'.' -f2)
+
+            # Find existing higher version branches and create PRs
+            HIGHER_BRANCHES=$(git branch -r | grep -E "origin/releases/$component/${CURRENT_MAJOR}\.[0-9]+\.x" | sed 's|origin/||')
+
+            BRANCH_CREATED=false
+
+            for BRANCH in $HIGHER_BRANCHES; do
+              BRANCH_VERSION=$(echo "$BRANCH" | grep -oE '[0-9]+\.[0-9]+')
+              BRANCH_MINOR=$(echo "$BRANCH_VERSION" | cut -d'.' -f2)
+
+              if [ "$BRANCH_MINOR" -gt "$CURRENT_MINOR" ]; then
+                echo "Creating PR to $BRANCH for $component"
+                gh pr create \
+                  --base "$BRANCH" \
+                  --head develop \
+                  --title "Sync updates to $BRANCH" \
+                  --body "Automatic sync of updates from develop to $BRANCH"
+              fi
+            done
+
+            # If no higher branches exist, create the next minor version branch
+            if [ -z "$HIGHER_BRANCHES" ]; then
+              NEW_RELEASE_BRANCH="releases/$component/${CURRENT_MAJOR}.$((CURRENT_MINOR + 1)).x"
+              echo "Creating new release branch: $NEW_RELEASE_BRANCH"
+              git checkout -b "$NEW_RELEASE_BRANCH"
+              git push -u origin "$NEW_RELEASE_BRANCH"
+            fi
+          }
+
+          # Handle App1 Release Branch
+          if [ "${{ env.app1_changes }}" -gt 0 ]; then
+            create_release_branch "app1" "${{ env.app1_version }}"
+          fi
+
+          # Handle App2 Release Branch
+          if [ "${{ env.app2_changes }}" -gt 0 ]; then
+            create_release_branch "app2" "${{ env.app2_version }}"
+          fi

@@ -1,0 +1,45 @@
+# Example tag trigger
+
+flutter_version: &flutter_version 3.0.0 #<- Set your flutter version.
+
+workflows:
+  release-app:
+    name: App release stage
+    instance_type: mac_mini_m1
+    max_build_duration: 10
+
+    environment:
+      flutter: *flutter_version
+      groups:
+        - aws # App host
+
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: "app_*"
+          include: true
+    # Add in cases of mono repo
+    when:
+      changeset:
+        includes:
+          - "app/pubspec.yaml"
+
+    scripts:
+      # Set permissions for your host
+      - name: Set aws_access_key_id and aws_secret_access_key
+        script: |
+          aws configure set aws_access_key_id $key
+          aws configure set aws_secret_access_key $secret_key
+
+      - name: Build web
+        working_directory: panel
+        script: flutter build web
+
+      - name: Deploy web
+        working_directory: panel
+        script: aws s3 sync build/web s3://appName --delete
+
+      - name: Invalidate cache
+        working_directory: shared/scripts
+        script: dart invalidate_cloud_front.dart
