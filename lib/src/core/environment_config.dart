@@ -7,10 +7,10 @@ import 'dart:io';
 /// with `SLACK_WEBHOOK_` for webhooks and use the key `CLOUD_DISTRIBUTION` for cloud distribution details.
 class EnvironmentConfig {
   // Prefix for environment variables related to Slack webhooks
-  static const _webhookPrefix = 'SLACK_WEBHOOK_';
+  static const String _webhookPrefix = 'SLACK_WEBHOOK_';
 
   // Key for the environment variable that stores cloud distribution information
-  static const cloudDistributionKey = 'CLOUD_DISTRIBUTION';
+  static const String cloudDistributionKey = 'CLOUD_DISTRIBUTION';
 
   /// Retrieves the Slack webhook URL for a given application name.
   ///
@@ -28,7 +28,7 @@ class EnvironmentConfig {
   /// final webhookUrl = EnvironmentConfig.getSlackWebhook('myApp');
   /// ```
   static String? getSlackWebhook(String appName) {
-    final webhookKey = '$_webhookPrefix${appName.toUpperCase()}';
+    final String webhookKey = '$_webhookPrefix${appName.toUpperCase()}';
     return Platform.environment[webhookKey];
   }
 
@@ -45,8 +45,8 @@ class EnvironmentConfig {
   /// ```
   static List<String> getAvailableApps() {
     return Platform.environment.keys
-        .where((key) => key.startsWith(_webhookPrefix))
-        .map((key) => key.replaceAll(_webhookPrefix, ''))
+        .where((String key) => key.startsWith(_webhookPrefix))
+        .map((String key) => key.replaceAll(_webhookPrefix, ''))
         .toList();
   }
 
@@ -62,7 +62,7 @@ class EnvironmentConfig {
   /// final hasWebhooks = EnvironmentConfig.hasAnyWebhooks();
   /// ```
   static bool hasAnyWebhooks() {
-    return Platform.environment.keys.any((key) => key.startsWith(_webhookPrefix));
+    return Platform.environment.keys.any((String key) => key.startsWith(_webhookPrefix));
   }
 
   /// Retrieves the cloud distribution information from the environment.

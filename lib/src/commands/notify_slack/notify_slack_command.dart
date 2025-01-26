@@ -65,7 +65,7 @@ class NotifySlackCommand extends Command<int> {
   @override
   Future<int> run() async {
     try {
-      final appName = argResults!['appName'] as String;
+      final String appName = argResults!['appName'] as String;
 
       // Check if any Slack webhooks are configured
       if (!EnvironmentConfig.hasAnyWebhooks()) {
@@ -75,7 +75,7 @@ class NotifySlackCommand extends Command<int> {
       }
 
       // Retrieve the webhook URL for the specified application
-      final webhook = EnvironmentConfig.getSlackWebhook(appName);
+      final String? webhook = EnvironmentConfig.getSlackWebhook(appName);
       if (webhook == null) {
         _logger.err('Available apps: ${EnvironmentConfig.getAvailableApps().join(", ")}');
         throw WebhookNotFoundException('Webhook not found for: $appName');
@@ -88,8 +88,8 @@ class NotifySlackCommand extends Command<int> {
         _logger.info('Sending message: "$message"');
         await http.post(
           Uri.parse(webhook),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({'text': message}),
+          headers: <String, String>{'Content-Type': 'application/json'},
+          body: json.encode(<String, String>{'text': message}),
         );
         _logger.success('Message sent');
         return ExitCode.success.code;
@@ -130,14 +130,14 @@ class NotifySlackCommand extends Command<int> {
       // Send the changelog to Slack
       await http.post(
         Uri.parse(webhook),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'text': '${changesRelatedToVersion.join('\n')}\n'}),
+        headers: <String, String>{'Content-Type': 'application/json'},
+        body: json.encode(<String, String>{'text': '${changesRelatedToVersion.join('\n')}\n'}),
       );
 
       _logger.success('Changelog sent');
       return ExitCode.success.code;
     } on Exception catch (e) {
-      final exceptionHandler = ExceptionHandler(logger: _logger);
+      final ExceptionHandler exceptionHandler = ExceptionHandler(logger: _logger);
       return exceptionHandler.handleException(e);
     }
   }

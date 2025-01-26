@@ -13,7 +13,7 @@ Future<void> createTag({
   bool signed = false,
 }) async {
   // Build the Git command arguments
-  final List<String> arguments = signed ? ['tag', '-s', tag] : ['tag', tag];
+  final List<String> arguments = signed ? <String>['tag', '-s', tag] : <String>['tag', tag];
 
   final ProcessResult result = Process.runSync(
     'git',

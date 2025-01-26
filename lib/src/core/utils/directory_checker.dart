@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 
 void checkApplicationDirectory() {
-  final currentDirectory = Directory.current.path;
-  final pubspecPath = path.join(currentDirectory, 'pubspec.yaml');
+  final String currentDirectory = Directory.current.path;
+  final String pubspecPath = path.join(currentDirectory, 'pubspec.yaml');
 
   if (!File(pubspecPath).existsSync()) {
     throw FileSystemException(

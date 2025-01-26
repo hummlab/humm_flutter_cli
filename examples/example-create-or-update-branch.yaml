@@ -1,111 +1,105 @@
-name: Create or Update Next Release Branch
+# CODE BELOW IS EXAMPLE FOR MONOREPOS WITH 2+ apps
+
+name: Create Or Update Release Branches
 
 on:
-  pull_request:
+  push:
     branches:
-      - develop
-    types:
-      - closed
+      - develop # If another branch change it also in code below
 
 jobs:
   handle-releases:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      # 2. Set up Git configuration
       - name: Setup Git Config
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
 
-      # 3. Detect branch details
-      - name: Detect Branch Details
-        id: detect_branches
-        run: |
-          BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
-          MERGED_BRANCH="${{ github.event.pull_request.head.ref }}"
-
-          # Determine the component (app or panel) and version
-          if [[ "$MERGED_BRANCH" == releases/app/* ]]; then
-            COMPONENT="app"
-          elif [[ "$MERGED_BRANCH" == releases/panel/* ]]; then
-            COMPONENT="panel"
-          else
-            echo "Unknown branch type. Exiting..."
-            exit 1
-          fi
-
-          VERSION=$(echo "$MERGED_BRANCH" | grep -oE '[0-9]+\.[0-9]+')
-          if [ -z "$VERSION" ]; then
-            echo "Could not extract version. Exiting..."
-            exit 1
-          fi
-
-          echo "component=$COMPONENT" >> $GITHUB_ENV
-          echo "base_branch=$BASE_BRANCH" >> $GITHUB_ENV
-          echo "merged_branch=$MERGED_BRANCH" >> $GITHUB_ENV
-          echo "merged_version=$VERSION" >> $GITHUB_ENV
-
-      # 4. Check for the next release branch
-      - name: Check for Next Release Branch
-        id: check_next_release
-        run: |
-          CURRENT_VERSION="${{ env.merged_version }}"
-          MINOR=$(echo "$CURRENT_VERSION" | cut -d'.' -f2)
-          MAJOR=$(echo "$CURRENT_VERSION" | cut -d'.' -f1)
-          NEXT_MINOR=$((MINOR + 1))
-          NEXT_VERSION="${MAJOR}.${NEXT_MINOR}"
-          NEXT_BRANCH="releases/${{ env.component }}/${NEXT_VERSION}.x"
-
-          # Check if the next branch already exists
-          if git ls-remote --exit-code --heads origin "$NEXT_BRANCH"; then
-            echo "next_branch_exists=true" >> $GITHUB_ENV
-          else
-            echo "next_branch_exists=false" >> $GITHUB_ENV
-            echo "next_branch=${NEXT_BRANCH}" >> $GITHUB_ENV
-          fi
-
-      # 5. Create the next release branch
-      - name: Create Next Release Branch
-        if: env.next_branch_exists == 'false'
-        run: |
-          git checkout -b "${{ env.next_branch }}"
-          PUBSPEC_FILE="${{ env.component }}/pubspec.yaml"
-
-          if [ ! -f "$PUBSPEC_FILE" ]; then
-            echo "Error: $PUBSPEC_FILE does not exist."
-            exit 1
-          fi
-
-          # Update version in pubspec.yaml
-          sed -i "s/^version: [0-9]\+\.[0-9]\+\.[0-9]\+\(\+[0-9]\+\)\?/version: ${{ env.next_version }}.0+1/" "$PUBSPEC_FILE"
-
-          git add "$PUBSPEC_FILE"
-          git commit -m "Bump version to ${{ env.next_version }}"
-          git push origin "${{ env.next_branch }}"
-
-      # 6. Create pull requests to higher branches
-      - name: Create Pull Requests to Higher Branches
-        if: env.next_branch_exists == 'true'
+      - name: Detect Changes and Extract Versions
+        id: detect_changes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          BASE_BRANCH="${{ env.base_branch }}"
-          CURRENT_VERSION="${{ env.merged_version }}"
-          git fetch --all
-          HIGHER_BRANCHES=$(git branch -r | grep -E "origin/releases/${{ env.component }}/[0-9]+\.[0-9]+\.x")
+          APP1_CHANGES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^app1/' | wc -l)
+          APP2_CHANGES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^app2/' | wc -l)
 
-          for BRANCH in $HIGHER_BRANCHES; do
-            gh pr create \
-              --base "$BRANCH" \
-              --head "$BASE_BRANCH" \
-              --title "Sync changes from $BASE_BRANCH to $BRANCH" \
-              --body "This PR syncs updates from $BASE_BRANCH into $BRANCH."
-          done
+          APP1_VERSION=""
+          APP2_VERSION=""
+
+          if [ -f "app1/pubspec.yaml" ]; then
+            APP1_VERSION=$(grep '^version: ' "app1/pubspec.yaml" | awk '{print $2}' | cut -d+ -f1)
+          fi
+
+          if [ -f "app2/pubspec.yaml" ]; then
+            APP2_VERSION=$(grep '^version: ' "app2/pubspec.yaml" | awk '{print $2}' | cut -d+ -f1)
+          fi
+
+          echo "App1 changes: $APP1_CHANGES"
+          echo "App2 changes: $APP2_CHANGES"
+          echo "App1 version: $APP1_VERSION"
+          echo "App2 version: $APP2_VERSION"
+
+          echo "app1_changes=$APP1_CHANGES" >> $GITHUB_ENV
+          echo "app2_changes=$APP2_CHANGES" >> $GITHUB_ENV
+          echo "app1_version=$APP1_VERSION" >> $GITHUB_ENV
+          echo "app2_version=$APP2_VERSION" >> $GITHUB_ENV
+
+      - name: Create or Update Release Branches
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          create_release_branch() {
+            local component="$1"
+            local current_version="$2"
+
+            if [ -z "$current_version" ]; then
+              echo "No version found for $component. Skipping."
+              return
+            fi
+
+            CURRENT_MAJOR=$(echo "$current_version" | cut -d'.' -f1)
+            CURRENT_MINOR=$(echo "$current_version" | cut -d'.' -f2)
+
+            # Find existing higher version branches and create PRs
+            HIGHER_BRANCHES=$(git branch -r | grep -E "origin/releases/$component/${CURRENT_MAJOR}\.[0-9]+\.x" | sed 's|origin/||')
+
+            BRANCH_CREATED=false
+
+            for BRANCH in $HIGHER_BRANCHES; do
+              BRANCH_VERSION=$(echo "$BRANCH" | grep -oE '[0-9]+\.[0-9]+')
+              BRANCH_MINOR=$(echo "$BRANCH_VERSION" | cut -d'.' -f2)
+
+              if [ "$BRANCH_MINOR" -gt "$CURRENT_MINOR" ]; then
+                echo "Creating PR to $BRANCH for $component"
+                gh pr create \
+                  --base "$BRANCH" \
+                  --head develop \
+                  --title "Sync updates to $BRANCH" \
+                  --body "Automatic sync of updates from develop to $BRANCH"
+              fi
+            done
+
+            # If no higher branches exist, create the next minor version branch
+            if [ -z "$HIGHER_BRANCHES" ]; then
+              NEW_RELEASE_BRANCH="releases/$component/${CURRENT_MAJOR}.$((CURRENT_MINOR + 1)).x"
+              echo "Creating new release branch: $NEW_RELEASE_BRANCH"
+              git checkout -b "$NEW_RELEASE_BRANCH"
+              git push -u origin "$NEW_RELEASE_BRANCH"
+            fi
+          }
+
+          # Handle App1 Release Branch
+          if [ "${{ env.app1_changes }}" -gt 0 ]; then
+            create_release_branch "app1" "${{ env.app1_version }}"
+          fi
+
+          # Handle App2 Release Branch
+          if [ "${{ env.app2_changes }}" -gt 0 ]; then
+            create_release_branch "app2" "${{ env.app2_version }}"
+          fi

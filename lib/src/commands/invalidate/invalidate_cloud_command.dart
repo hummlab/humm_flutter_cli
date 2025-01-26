@@ -28,7 +28,7 @@ class InvalidateCloudCommand extends Command<int> {
   @override
   Future<int> run() async {
     try {
-      final distributionId = EnvironmentConfig.getCloudDistribution();
+      final String? distributionId = EnvironmentConfig.getCloudDistribution();
       if (distributionId == null) {
         throw AwsDistributionNotFoundException(
           'CloudFront distribution ID not found. Required: CLOUD_DISTRIBUTION',
@@ -60,7 +60,7 @@ class InvalidateCloudCommand extends Command<int> {
       _logger.success('Cache successfully invalidated');
       return ExitCode.success.code;
     } on Exception catch (e) {
-      final exceptionHandler = ExceptionHandler(logger: _logger);
+      final ExceptionHandler exceptionHandler = ExceptionHandler(logger: _logger);
       return exceptionHandler.handleException(e);
     }
   }

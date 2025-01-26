@@ -104,7 +104,7 @@ class ReleaseCommand extends Command<int> {
       return ExitCode.success.code;
     } on Exception catch (e) {
       /// Handles any exceptions that occur during the execution of the command.
-      final exceptionHandler = ExceptionHandler(logger: _logger);
+      final ExceptionHandler exceptionHandler = ExceptionHandler(logger: _logger);
       return exceptionHandler.handleException(e);
     }
   }
