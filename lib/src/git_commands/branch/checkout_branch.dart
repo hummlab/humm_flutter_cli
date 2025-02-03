@@ -36,7 +36,6 @@ Future<void> checkoutToBranch(String branch) async {
   if (!isLocal && isRemote) {
     stdout.writeln('Branch $branch is remote. Fetching...');
 
-    // Tworzymy lokalną gałąź śledzącą
     final ProcessResult trackBranchResult = await Process.run(
       'git',
       ['checkout', '-b', branch, '--track', remoteBranch],
