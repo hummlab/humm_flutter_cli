@@ -28,10 +28,31 @@ Future<void> checkoutToBranch(String branch) async {
       .split('\n')
       .map((String branch) => branch.replaceAll('*', '').trim())
       .toList();
+  bool isLocal = branches.contains(branch);
 
-  // Check if the specified branch exists
-  if (!branches.contains(branch)) {
-    stdout.writeln('Branch $branch does not exist.');
+  String remoteBranch = 'remotes/origin/$branch';
+  bool isRemote = branches.contains(remoteBranch);
+
+  if (!isLocal && isRemote) {
+    stdout.writeln('Branch $branch is remote. Fetching...');
+
+    final ProcessResult trackBranchResult = await Process.run(
+      'git',
+      ['checkout', '-b', branch, '--track', remoteBranch],
+    );
+
+    if (trackBranchResult.exitCode != 0) {
+      stdout.writeln(
+          'Error during checkouting to $branch: ${trackBranchResult.stderr}');
+      exit(1);
+    } else {
+      stdout.writeln('Checkouted to branch $branch.');
+      return;
+    }
+  }
+
+  if (!isLocal && !isRemote) {
+    stdout.writeln('Branch $branch do not exist.');
     exit(1);
   }
 
