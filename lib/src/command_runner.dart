@@ -1,24 +1,24 @@
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:cli_completion/cli_completion.dart';
-import 'package:humm_cli/src/commands/commands.dart';
-import 'package:humm_cli/src/commands/notify_slack/notify_slack_with_error_command.dart';
-import 'package:humm_cli/src/commands/release/prod_changelog_command.dart';
+import 'package:humm/src/commands/commands.dart';
+import 'package:humm/src/commands/notify_slack/notify_slack_with_error_command.dart';
+import 'package:humm/src/commands/release/prod_changelog_command.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:pub_updater/pub_updater.dart';
 
-const executableName = 'humm_cli';
-const packageName = 'humm_cli';
-const description = 'Humm cli package';
+const String executableName = 'humm';
+const String packageName = 'humm';
+const String description = 'Humm cli package';
 
-/// {@template humm_cli_command_runner}
+/// {@template humm_command_runner}
 /// Custom [CommandRunner] for the Humm CLI.
 ///
 /// Provides the base functionality for executing commands, parsing arguments,
 /// and handling errors.
 /// {@endtemplate}
 class HummCliCommandRunner extends CompletionCommandRunner<int> {
-  /// {@macro humm_cli_command_runner}
+  /// {@macro humm_command_runner}
   HummCliCommandRunner({
     Logger? logger,
     PubUpdater? pubUpdater,
@@ -37,6 +37,9 @@ class HummCliCommandRunner extends CompletionCommandRunner<int> {
     addCommand(NotifySlackCommand(logger: _logger));
     addCommand(NotifySlackWithErrorCommand(logger: _logger));
     addCommand(InvalidateCloudCommand(logger: _logger));
+    addCommand(CheckTranslationsCommand(logger: _logger));
+    addCommand(CheckStaticStringsCommands(logger: _logger));
+    addCommand(ChangelogCommand(logger: _logger));
   }
 
   /// Logger instance used for output and logging.
@@ -48,7 +51,7 @@ class HummCliCommandRunner extends CompletionCommandRunner<int> {
   @override
   Future<int> run(Iterable<String> args) async {
     try {
-      final topLevelResults = parse(args);
+      final ArgResults topLevelResults = parse(args);
       if (topLevelResults['verbose'] == true) {
         _logger.level = Level.verbose; // Enable verbose logging.
       }
@@ -85,7 +88,7 @@ class HummCliCommandRunner extends CompletionCommandRunner<int> {
     _logger
       ..detail('Argument information:')
       ..detail('  Top-level options:');
-    for (final option in topLevelResults.options) {
+    for (final String option in topLevelResults.options) {
       if (topLevelResults.wasParsed(option)) {
         _logger.detail('  - $option: ${topLevelResults[option]}');
       }
@@ -93,11 +96,11 @@ class HummCliCommandRunner extends CompletionCommandRunner<int> {
 
     // Log command-specific options in verbose mode.
     if (topLevelResults.command != null) {
-      final commandResult = topLevelResults.command!;
+      final ArgResults commandResult = topLevelResults.command!;
       _logger
         ..detail('  Command: ${commandResult.name}')
         ..detail('    Command options:');
-      for (final option in commandResult.options) {
+      for (final String option in commandResult.options) {
         if (commandResult.wasParsed(option)) {
           _logger.detail('    - $option: ${commandResult[option]}');
         }

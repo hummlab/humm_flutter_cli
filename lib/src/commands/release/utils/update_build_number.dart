@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:humm_cli/src/core/exceptions.dart';
+import 'package:humm/src/core/exceptions.dart';
 
 /// Updates the build number in the `pubspec.yaml` file.
 ///

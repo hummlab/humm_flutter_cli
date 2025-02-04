@@ -32,6 +32,9 @@ $ humm release --set-bn $build_number # Set specific build number
 ```sh
 # Production changelog command
 $ humm prod_changelog --version $version # Set version
+
+# Get changelog for specific version
+$ humm changelog $version # e.g., humm changelog 7.11.2
 ```
 
 ### Slack Notifications
@@ -45,6 +48,20 @@ $ humm notify_slack --appName PROJECT_NAME --message "message_content"
 
 # Send error notification
 $ humm notify_slack_error --appName PROJECT_NAME
+```
+
+
+### Check translations
+
+```sh
+# Check integration for all .arb files in project
+humm check_translations
+```
+
+### Check strings
+
+```sh
+# Search and display all static strings used in widgets
 ```
 
 ### Cache Invalidation

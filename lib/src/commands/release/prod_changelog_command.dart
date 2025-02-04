@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:humm_cli/src/core/exception_handler.dart';
-import 'package:humm_cli/src/commands/release/parsers/parse_prod_changelog_arguments.dart';
+import 'package:humm/src/core/exception_handler.dart';
+import 'package:humm/src/commands/release/parsers/parse_prod_changelog_arguments.dart';
 
 import 'package:mason_logger/mason_logger.dart';
 

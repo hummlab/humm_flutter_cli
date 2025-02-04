@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:humm_cli/src/core/exceptions.dart';
+import 'package:humm/src/core/exceptions.dart';
 
 /// Extension to format `DateTime` into a simple string representation.
 extension DateTimeExtension on DateTime {
@@ -67,7 +67,6 @@ Future<void> updateChangelog({
   }
 
   final String lastChangelogCommit = (lastChangelogCommitResult.stdout as String).trim();
-
   // Fetch all commits since the last changelog modification.
   final ProcessResult wantedCommitsResult = Process.runSync(
     'git',
@@ -109,19 +108,26 @@ Future<void> updateChangelog({
 
     final String commitMessage = (commitResult.stdout as String).trim();
     final List<String> commitLines = commitMessage.split('\n');
-
     // Filter commit messages by tags and optional prefix.
     for (final String line in commitLines) {
       final String trimmedLine = line.trim();
       for (String wantedTag in _wantedChangelogTags) {
-        if (trimmedLine.startsWith(wantedTag)) {
-          if (prefixRaw != null && trimmedLine.contains(prefixRaw)) {
+        if (prefixRaw != null && prefixRaw.isNotEmpty && trimmedLine.startsWith('[$prefixRaw]')) {
+          final String withoutPrefix = trimmedLine.substring('[$prefixRaw]'.length).trim();
+          if (withoutPrefix.startsWith(wantedTag)) {
             changes.add(trimmedLine);
             break;
           }
-          if (prefixRaw == null) {
-            changes.add(trimmedLine);
-            break;
+        } else {
+          if (trimmedLine.startsWith(wantedTag)) {
+            if (prefixRaw != null && trimmedLine.contains(prefixRaw)) {
+              changes.add(trimmedLine);
+              break;
+            }
+            if (prefixRaw == null) {
+              changes.add(trimmedLine);
+              break;
+            }
           }
         }
       }
