@@ -1,7 +1,7 @@
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:cli_completion/cli_completion.dart';
-import 'package:humm/src/commands/commands.dart';
+import 'package:humm/src/commands/_commands.dart';
 import 'package:humm/src/commands/notify_slack/notify_slack_with_error_command.dart';
 import 'package:humm/src/commands/release/prod_changelog_command.dart';
 import 'package:mason_logger/mason_logger.dart';
@@ -40,6 +40,7 @@ class HummCliCommandRunner extends CompletionCommandRunner<int> {
     addCommand(CheckTranslationsCommand(logger: _logger));
     addCommand(CheckStaticStringsCommands(logger: _logger));
     addCommand(ChangelogCommand(logger: _logger));
+    addCommand(JiraSendChangelogWebookCommand(logger: _logger));
   }
 
   /// Logger instance used for output and logging.

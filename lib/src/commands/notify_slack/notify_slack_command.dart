@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:humm/src/core/exception_handler.dart';
-import 'package:humm/src/core/exceptions.dart';
-import 'package:humm/src/core/environment_config.dart';
+import 'package:humm/src/core/exceptions/exception_handler.dart';
+import 'package:humm/src/core/exceptions/exceptions.dart';
+import 'package:humm/src/core/environment/environment_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:mason_logger/mason_logger.dart';
 
@@ -68,16 +68,20 @@ class NotifySlackCommand extends Command<int> {
       final String appName = argResults!['appName'] as String;
 
       // Check if any Slack webhooks are configured
-      if (!EnvironmentConfig.hasAnyWebhooks()) {
+      if (!EnvironmentConfig.hasAnyWebhooks(WebhookApp.slack)) {
         throw NoWebhooksConfiguredException(
           'No webhooks configured. Required format: SLACK_WEBHOOK_APPNAME',
         );
       }
 
       // Retrieve the webhook URL for the specified application
-      final String? webhook = EnvironmentConfig.getSlackWebhook(appName);
+      final String? webhook = EnvironmentConfig.getWebhook(
+        appName: appName,
+        app: WebhookApp.slack,
+      );
       if (webhook == null) {
-        _logger.err('Available apps: ${EnvironmentConfig.getAvailableApps().join(", ")}');
+        _logger.err(
+            'Available apps: ${EnvironmentConfig.getAvailableApps(WebhookApp.slack).join(", ")}');
         throw WebhookNotFoundException('Webhook not found for: $appName');
       }
 
@@ -105,7 +109,8 @@ class NotifySlackCommand extends Command<int> {
       final String wantedLine = pubspecContent.firstWhere(
         (String line) => line.startsWith('version'),
       );
-      final String currentVersion = wantedLine.replaceAll('version:', '').trim().split('+').first;
+      final String currentVersion =
+          wantedLine.replaceAll('version:', '').trim().split('+').first;
 
       final File changelog = File('CHANGELOG.md');
       final List<String> changelogContent = changelog.readAsLinesSync();
@@ -131,13 +136,16 @@ class NotifySlackCommand extends Command<int> {
       await http.post(
         Uri.parse(webhook),
         headers: <String, String>{'Content-Type': 'application/json'},
-        body: json.encode(<String, String>{'text': '${changesRelatedToVersion.join('\n')}\n'}),
+        body: json.encode(<String, String>{
+          'text': '${changesRelatedToVersion.join('\n')}\n'
+        }),
       );
 
       _logger.success('Changelog sent');
       return ExitCode.success.code;
     } on Exception catch (e) {
-      final ExceptionHandler exceptionHandler = ExceptionHandler(logger: _logger);
+      final ExceptionHandler exceptionHandler =
+          ExceptionHandler(logger: _logger);
       return exceptionHandler.handleException(e);
     }
   }

@@ -51,6 +51,20 @@ humm notify_slack --appName PROJECT_NAME --message "Custom message"
 humm notify_slack_error --appName PROJECT_NAME
 ```
 
+### Jira changelog webhook
+
+# Send changelog for provided version to jira webhook 
+# Eg. changelog if changelog is in format x.y.z+y u have to provide entire number with +y value
+```sh
+6.5.12+45 [01.01.2020 15:00]
+
+- [fix] Fix in display wallet info in attendance row [1500]
+```
+
+```sh
+humm jira_changelog $VERSION
+```
+
 ### Check translations
 
 ```sh
@@ -93,6 +107,15 @@ SLACK_WEBHOOK_PROJECT1=https://hooks.slack.com/services/...
 SLACK_WEBHOOK_PROJECT2=https://hooks.slack.com/services/...
 ```
 
+### Jira changelog webhook
+
+Configure webhook and token
+
+```sh
+JIRA_WEBHOOK = $JIRA_WEBHOOK_URL
+JIRA_AUTH_TOKEN = $TOKEN
+```
+
 ### AWS CloudFront Invalidation
 
 ```sh
@@ -111,15 +134,23 @@ workflows:
         SLACK_WEBHOOK_PROJECT2: $PROJECT2_WEBHOOK
         # CloudFront distribution
         CLOUD_DISTRIBUTION: $CLOUDFRONT_ID
+        # Jira 
+        JIRA_WEBHOOK: $WEBHOOK
+        JIRA_TOKEN: $TOKEN
+
 
     scripts:
       - name: Send notification
         script: |
           humm notify_slack --appName PROJECT1 --message "Build completed"
-
+      
       - name: Invalidate cache
         script: |
           humm invalidate
+
+      - name: Send changelog to jira
+        script: |
+          jira_changelog $VERSION
 ```
 
 ## Example Git Flow
@@ -135,12 +166,9 @@ releases/<component>/<version>: Release branches, e.g., releases/appName/1.4.x, 
 
 ##### How It Works
 ```sh
-Developers should work on a release branch, such as releases/1.4.x or releases/appName/1.4.x.
+Developers should work on feature branches, which are then merged into release branches (e.g., releases/1.4.x or releases/appName/1.4.x).
 
-Once the work is ready, the release branch is merged into develop. The workflow then automates the following steps:
-
-Trigger CI/CD Pipeline on Changes to develop:
-If your CI/CD pipeline is configured to release on changes to the develop branch (e.g., see examples/example-ci-cd-develop-trigger.yaml), it will:
+If the CI/CD pipeline is configured to trigger releases(e,g. examples/example-ci-cd-create-version.yaml), any push or merge to a releases/x branch will automatically initiate a release process, it will:
 
 Update the pubspec.yaml file with the new version.
 Update the changelog automatically.
@@ -148,12 +176,15 @@ Create a version tag to trigger the release workflow (see an example for tag tri
 Create or Update Release Branches:
 Using the GitHub Actions workflow (e.g., examples/example-create-or-update-branch.yaml):
 
+Once the work for a version is complete, the release branch is merged into develop.
+
 The action detects the merged release branch and determines the next version.
 If a branch for the next version does not exist (e.g., releases/1.5.x or releases/appName/1.5.x), the workflow creates the new release branch and updates the pubspec.yaml file with the next version. The new branch is then pushed to the repository.
-If the next branch already exists (e.g., releases/1.5.x), the workflow creates pull requests from develop to all higher-version branches (e.g., releases/1.6.x, releases/1.7.x) to propagate changes.
+If the next branch already exists (e.g., releases/1.5.x), the workflow creates pull requests from develop to all higher-version branches (based on pubspec.yaml from develop) (e.g., releases/1.6.x, releases/1.7.x) to propagate changes.
 Manual Conflict Resolution:
 Developers must manually review and resolve any conflicts in the pull requests created for higher-version branches before merging them.
 ```
+
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
 [very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg

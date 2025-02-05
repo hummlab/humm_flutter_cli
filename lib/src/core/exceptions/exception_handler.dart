@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:humm/src/core/exceptions.dart';
+import 'package:humm/src/core/exceptions/exceptions.dart';
 import 'package:mason_logger/mason_logger.dart';
 
 /// A class responsible for handling exceptions and logging error messages.
@@ -41,6 +41,7 @@ class ExceptionHandler {
       FileSystemException => 'File system error: $exception',
       NoAwsDistributionsConfiguredException => (exception as NoAwsDistributionsConfiguredException).message,
       AwsDistributionNotFoundException => (exception as AwsDistributionNotFoundException).message,
+      NoAuthTokenException => (exception as NoAuthTokenException).message,
       _ => 'An unhandled error occurred: $exception',
     };
 

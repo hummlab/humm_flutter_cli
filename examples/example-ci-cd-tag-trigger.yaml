@@ -3,43 +3,52 @@
 flutter_version: &flutter_version 3.0.0 #<- Set your flutter version.
 
 workflows:
-  release-app:
-    name: App release stage
+ app-firebase-release:
+    name: Release App
     instance_type: mac_mini_m1
     max_build_duration: 10
-
-    environment:
-      flutter: *flutter_version
-      groups:
-        - aws # App host
-
     triggering:
       events:
         - tag
-      tag_patterns:
-        - pattern: "app_*"
+      branch_patterns:
+        - pattern: 'releases/app/*'
           include: true
-    # Add in cases of mono repo
+          source: true
+      tag_patterns:
+        - pattern: 'app_*'
+          include: true
+
     when:
       changeset:
         includes:
-          - "app/pubspec.yaml"
+          - 'app/pubspec.yaml'
 
+    environment:
+      groups:
+        - gcloud_stage
+      node: x.x.x
+      npm: y.y.y
+      flutter: *flutter_version
+      vars:
+        SLACK_WEBHOOK_APP: https://hooks.slack.com/services/*
     scripts:
-      # Set permissions for your host
-      - name: Set aws_access_key_id and aws_secret_access_key
-        script: |
-          aws configure set aws_access_key_id $key
-          aws configure set aws_secret_access_key $secret_key
+      - name: Download humm cli with SSH connection
+        script: git clone git@github.com:hummlab/humm_flutter_cli.git
+
+      - name: Setup humm cli
+        working_directory: humm_flutter_cli
+        script: dart pub global activate --source path .
 
       - name: Build web
-        working_directory: panel
+        working_directory: app
         script: flutter build web
 
-      - name: Deploy web
-        working_directory: panel
-        script: aws s3 sync build/web s3://appName --delete
-
-      - name: Invalidate cache
-        working_directory: shared/scripts
-        script: dart invalidate_cloud_front.dart
+      - name: Firebase Hosting Deploy
+        working_directory: app
+        script: |
+          echo $GOOGLE_APPLICATION_CREDENTIALS_STAGE > google_credentials.json
+          export GOOGLE_APPLICATION_CREDENTIALS=google_credentials.json
+          TAG=$(echo $CM_TAG | sed -E 's/app_([0-9]+)\.([0-9]+)\.[0-9]+/app\/\1.\2.x/')
+          echo "Deploying to Firebase Hosting Channel: $TAG"
+          firebase hosting:channel:deploy $TAG --expires 30d
+          humm notify_slack --appName app

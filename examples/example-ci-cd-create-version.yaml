@@ -1,0 +1,87 @@
+# Example develop changed trigger
+
+flutter_version: &flutter_version 3.0.0 #<- Set your flutter version.
+
+workflows:
+ 
+  create-version:
+    name: Create Version
+    instance_type: mac_mini_m1
+    max_build_duration: 10
+
+    environment:
+      flutter: *flutter_version
+      groups:
+        - git
+
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'releases/*'
+          include: true
+          source: true
+
+    when:
+      changeset:
+        includes:
+          - 'app1/**'
+          - 'app2/**'
+
+    scripts:
+      - name: Check if commit is from CI/CD
+        script: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          COMMIT_AUTHOR=$(git log -1 --pretty=%an)
+          echo "Commit message: $COMMIT_MSG"
+          echo "Commit author: $COMMIT_AUTHOR"
+          if [[ "$COMMIT_MSG" == *"Pre-release updates"* ]]; then
+            echo "Commit comes from CI/CD. Exiting job..."
+            exit 1  # exit to prevent further execution
+          fi
+
+      - name: Download repo with SSH connection
+        script: git clone git@github.com:organization/monorepo.git
+
+      - name: Download humm cli with SSH connection
+        script: git clone git@github.com:hummlab/humm_flutter_cli.git
+
+      - name: Setup humm cli
+        working_directory: humm_flutter_cli
+        script: dart pub global activate --source path .
+
+      - name: Check Changes in App1
+        working_directory: monorepo/app1
+        script: |
+          if [[ "$CM_BRANCH" =~ ^releases/app1/.*$ ]]; then
+            echo "Branch matches pattern releases/app1/*"
+            APP1_CHANGED=$(git diff --name-only origin/$CM_BRANCH~1 origin/$CM_BRANCH | grep '^app1/' || true)
+            if [ -n "$APP1_CHANGED" ]; then
+              echo "Changes detected in app1/"
+              echo "Triggering app1 version creation"
+              humm release --tag-prefix app1 --branch $CM_BRANCH
+              exit 0  # exit to prevent further execution
+            else
+              echo "No changes detected in app1/"
+            fi
+          else
+            echo "Branch does not match pattern releases/app1/*, skipping app1 version creation."
+          fi
+
+      - name: Check Changes in App2
+        working_directory: lets-dance/app2
+        script: |
+          if [[ "$CM_BRANCH" =~ ^releases/app2/.*$ ]]; then
+            echo "Branch matches pattern releases/app2/*"
+            APP2_CHANGED=$(git diff --name-only origin/$CM_BRANCH~1 origin/$CM_BRANCH | grep '^app2/' || true)
+            if [ -n "$APP2_CHANGED" ]; then
+              echo "Changes detected in app2/"
+              echo "Triggering app2 version creation"
+              humm release --tag-prefix app2 --branch $CM_BRANCH
+              exit 0  # exit to prevent further execution
+            else
+              echo "No changes detected in app2/"
+            fi
+          else
+            echo "Branch does not match pattern releases/app2/*, skipping app2 version creation."
+          fi

@@ -23,6 +23,16 @@ class NoWebhooksConfiguredException implements Exception {
   String toString() => message;
 }
 
+/// Exception thrown when no auth tokens are configured.
+class NoAuthTokenException implements Exception {
+  final String message;
+
+  NoAuthTokenException(this.message);
+
+  @override
+  String toString() => message;
+}
+
 /// Exception thrown when a specified webhook is not found.
 class WebhookNotFoundException implements Exception {
   final String message;

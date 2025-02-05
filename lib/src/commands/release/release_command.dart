@@ -1,11 +1,10 @@
 import 'package:args/command_runner.dart';
 import 'package:humm/src/commands/release/models/release_options.dart';
-import 'package:humm/src/core/exception_handler.dart';
-import 'package:humm/src/git_commands/_git.dart';
-import 'package:humm/src/git_commands/tags/create_tag.dart';
+import 'package:humm/src/core/exceptions/exception_handler.dart';
 import 'package:humm/src/commands/release/parsers/parse_release_arguments.dart';
 import 'package:humm/src/commands/release/utils/update_build_number.dart';
 import 'package:humm/src/commands/release/utils/update_changelog.dart';
+import 'package:humm/src/services/git/git_service.dart';
 import 'package:mason_logger/mason_logger.dart';
 
 /// A command that automates the release process of an application.
@@ -64,7 +63,7 @@ class ReleaseCommand extends Command<int> {
       final ReleaseOptions releaseOptions = await parseReleaseArguments(argResults!);
 
       _logger.info('Checking out to branch ${(releaseOptions.branch ?? 'develop')}');
-      await checkoutToBranch(releaseOptions.branch ?? 'develop');
+      await GitService.checkoutToBranch(releaseOptions.branch ?? 'develop');
       _logger.success('Switched to branch ${(releaseOptions.branch ?? 'develop')}');
 
       _logger.info('Updating build number...');
@@ -83,18 +82,18 @@ class ReleaseCommand extends Command<int> {
       _logger.success('Updated changelog');
 
       _logger.info('Committing pre-release updates...');
-      await commitChanges();
+      await GitService.commitChanges();
       _logger.success('Changes committed');
 
       final String tagVersion = version.split('+').first;
       final String tag = '${releaseOptions.prefix}$tagVersion';
 
       _logger.info('Creating tag...');
-      createTag(tag: tag);
+      GitService.createTag(tag: tag);
       _logger.success('Tag $tag created');
 
       _logger.info('Pushing changes...');
-      await pushChanges(
+      await GitService.pushChanges(
         tag: tag,
         ci: releaseOptions.ci,
       );
