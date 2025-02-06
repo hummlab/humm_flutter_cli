@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:humm/src/core/exceptions.dart';
+import 'package:humm/src/core/exceptions/exceptions.dart';
 
 /// Updates the build number in the `pubspec.yaml` file.
 ///
@@ -129,7 +129,7 @@ String _createNewVersion(
     // Increment the patch version from the current version.
     final List<int?> parts = currentVersion.split('.').map(int.tryParse).toList();
 
-    if (parts.any((part) => part == null)) {
+    if (parts.any((int? part) => part == null)) {
       throw FormatException();
     }
 

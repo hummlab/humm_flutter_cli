@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:humm/src/core/exception_handler.dart';
+import 'package:humm/src/core/exceptions/exception_handler.dart';
 import 'package:humm/src/commands/release/parsers/parse_prod_changelog_arguments.dart';
 
 import 'package:mason_logger/mason_logger.dart';
@@ -108,7 +108,7 @@ class ProdChangelogCommand extends Command<int> {
       return ExitCode.success.code;
     } on Exception catch (e) {
       /// Handles exceptions during the execution.
-      final exceptionHandler = ExceptionHandler(logger: _logger);
+      final ExceptionHandler exceptionHandler = ExceptionHandler(logger: _logger);
       return exceptionHandler.handleException(e);
     }
   }

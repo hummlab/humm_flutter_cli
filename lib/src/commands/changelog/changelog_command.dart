@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:args/command_runner.dart';
-import 'package:humm/src/core/exception_handler.dart';
-import 'package:humm/src/core/exceptions.dart';
+import 'package:humm/src/core/exceptions/exception_handler.dart';
+import 'package:humm/src/core/exceptions/exceptions.dart';
 import 'package:mason_logger/mason_logger.dart';
 
 class ChangelogCommand extends Command<int> {
@@ -41,7 +41,6 @@ class ChangelogCommand extends Command<int> {
       final List<String> versionChanges = <String>[];
       bool isVersionFound = false;
       bool isCollecting = false;
-
       for (final String line in changelogContent) {
         if (line.contains('# $version [')) {
           isVersionFound = true;
@@ -69,7 +68,7 @@ class ChangelogCommand extends Command<int> {
 
       return ExitCode.success.code;
     } on Exception catch (e) {
-      final exceptionHandler = ExceptionHandler(logger: _logger);
+      final ExceptionHandler exceptionHandler = ExceptionHandler(logger: _logger);
       return exceptionHandler.handleException(e);
     }
   }

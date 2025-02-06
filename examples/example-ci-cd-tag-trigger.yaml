@@ -1,0 +1,54 @@
+# Example tag trigger
+
+flutter_version: &flutter_version 3.0.0 #<- Set your flutter version.
+
+workflows:
+ app-firebase-release:
+    name: Release App
+    instance_type: mac_mini_m1
+    max_build_duration: 10
+    triggering:
+      events:
+        - tag
+      branch_patterns:
+        - pattern: 'releases/app/*'
+          include: true
+          source: true
+      tag_patterns:
+        - pattern: 'app_*'
+          include: true
+
+    when:
+      changeset:
+        includes:
+          - 'app/pubspec.yaml'
+
+    environment:
+      groups:
+        - gcloud_stage
+      node: x.x.x
+      npm: y.y.y
+      flutter: *flutter_version
+      vars:
+        SLACK_WEBHOOK_APP: https://hooks.slack.com/services/*
+    scripts:
+      - name: Download humm cli with SSH connection
+        script: git clone git@github.com:hummlab/humm_flutter_cli.git
+
+      - name: Setup humm cli
+        working_directory: humm_flutter_cli
+        script: dart pub global activate --source path .
+
+      - name: Build web
+        working_directory: app
+        script: flutter build web
+
+      - name: Firebase Hosting Deploy
+        working_directory: app
+        script: |
+          echo $GOOGLE_APPLICATION_CREDENTIALS_STAGE > google_credentials.json
+          export GOOGLE_APPLICATION_CREDENTIALS=google_credentials.json
+          TAG=$(echo $CM_TAG | sed -E 's/app_([0-9]+)\.([0-9]+)\.[0-9]+/app\/\1.\2.x/')
+          echo "Deploying to Firebase Hosting Channel: $TAG"
+          firebase hosting:channel:deploy $TAG --expires 30d
+          humm notify_slack --appName app

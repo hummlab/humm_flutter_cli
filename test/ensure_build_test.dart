@@ -1,4 +1,4 @@
-@Tags(['version-verify'])
+@Tags(<String>['version-verify'])
 library ensure_build_test;
 
 import 'package:build_verify/build_verify.dart';

@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:humm/src/commands/validate/utils/files_service.dart';
-import 'package:humm/src/core/exception_handler.dart';
+import 'package:humm/src/services/files/files_service.dart';
+import 'package:humm/src/core/exceptions/exception_handler.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:path/path.dart' as path;
 
