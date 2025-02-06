@@ -53,15 +53,15 @@ humm notify_slack_error --appName PROJECT_NAME
 
 ### Jira changelog webhook
 
+
+```sh
 # Send changelog for provided version to jira webhook 
 # Eg. changelog if changelog is in format x.y.z+y u have to provide entire number with +y value
-```sh
-6.5.12+45 [01.01.2020 15:00]
 
-- [fix] Fix in display wallet info in attendance row [1500]
-```
+# 6.5.12+45 [01.01.2020 15:00]
 
-```sh
+# - [fix] Fix in display wallet info in attendance row [1500]
+
 humm jira_changelog $VERSION
 ```
 
