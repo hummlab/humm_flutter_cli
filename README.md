@@ -168,13 +168,13 @@ releases/<component>/<version>: Release branches, e.g., releases/appName/1.4.x, 
 ```sh
 Developers should work on feature branches, which are then merged into release branches (e.g., releases/1.4.x or releases/appName/1.4.x).
 
-If the CI/CD pipeline is configured to trigger releases(e,g. examples/example-ci-cd-create-version.yaml), any push or merge to a releases/x branch will automatically initiate a release process, it will:
+If the CI/CD pipeline is configured to trigger releases(e,g. ci-cd-examples/example-ci-cd-create-version.yaml), any push or merge to a releases/x branch will automatically initiate a release process, it will:
 
 Update the pubspec.yaml file with the new version.
 Update the changelog automatically.
-Create a version tag to trigger the release workflow (see an example for tag triggers in examples/example-tag-trigger.yaml).
+Create a version tag to trigger the release workflow (see an example for tag triggers in ci-cd-examples/example-tag-trigger.yaml).
 Create or Update Release Branches:
-Using the GitHub Actions workflow (e.g., examples/example-create-or-update-branch.yaml):
+Using the GitHub Actions workflow (e.g., ci-cd-examples/example-create-or-update-branch.yaml):
 
 Once the work for a version is complete, the release branch is merged into develop.
 

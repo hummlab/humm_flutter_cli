@@ -1,28 +1,29 @@
 name: humm
-description: Humm cli package
-version: 1.0.1+2
-publish_to: none
+description: Humm CLI tools for Flutter apps
+version: 1.0.0
+repository: https://github.com/hummlab/humm_flutter_cli
+homepage: https://github.com/hummlab/humm_flutter_cli
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
-  args: 2.6.0
-  cli_completion: 0.5.0
-  mason_logger: 0.2.10
-  pub_updater: 0.5.0
-  http: 1.3.0
-  io: 1.0.5
-  path: 1.9.1
+  args: ^2.6.0
+  cli_completion: ^0.5.0
+  mason_logger: ^0.2.10
+  pub_updater: ^0.5.0
+  http: ^1.3.0
+  io: ^1.0.5
+  path: ^1.9.1
 
 dev_dependencies:
-  build_runner: 2.4.9
-  build_verify: 3.1.0
-  build_version: 2.1.1
-  mocktail: 1.0.0
-  test: 1.25.14
-  very_good_analysis: 7.0.0
-  mockito: 5.4.4
+  build_runner: ^2.4.9
+  build_verify: ^3.1.0
+  build_version: ^2.1.1
+  mocktail: ^1.0.0
+  test: ^1.25.14
+  very_good_analysis: ^7.0.0
+  mockito: ^5.4.4
 
 
 

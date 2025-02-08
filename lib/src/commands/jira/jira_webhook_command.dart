@@ -36,10 +36,6 @@ class JiraSendChangelogWebookCommand extends Command<int> {
 
     String releaseVersion = argResults!.rest.first;
 
-    if (!EnvironmentConfig.hasAnyWebhooks(WebhookApp.jira)) {
-      throw NoWebhooksConfiguredException('No Jira webhooks configured.');
-    }
-
     final String? jiraWebhookUrl = EnvironmentConfig.getWebhook(app: WebhookApp.jira);
 
     if (jiraWebhookUrl == null || jiraWebhookUrl.isEmpty) {
