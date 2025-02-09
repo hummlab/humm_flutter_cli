@@ -1,9 +1,9 @@
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:cli_completion/cli_completion.dart';
-import 'package:humm/src/commands/_commands.dart';
-import 'package:humm/src/commands/notify_slack/notify_slack_with_error_command.dart';
-import 'package:humm/src/commands/release/prod_changelog_command.dart';
+import 'package:humm_cli/src/commands/_commands.dart';
+import 'package:humm_cli/src/commands/notify_slack/notify_slack_with_error_command.dart';
+import 'package:humm_cli/src/commands/release/prod_changelog_command.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:pub_updater/pub_updater.dart';
 

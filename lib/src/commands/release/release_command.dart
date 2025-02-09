@@ -1,10 +1,10 @@
 import 'package:args/command_runner.dart';
-import 'package:humm/src/commands/release/models/release_options.dart';
-import 'package:humm/src/core/exceptions/exception_handler.dart';
-import 'package:humm/src/commands/release/parsers/parse_release_arguments.dart';
-import 'package:humm/src/commands/release/utils/update_build_number.dart';
-import 'package:humm/src/commands/release/utils/update_changelog.dart';
-import 'package:humm/src/services/git/git_service.dart';
+import 'package:humm_cli/src/commands/release/models/release_options.dart';
+import 'package:humm_cli/src/core/exceptions/exception_handler.dart';
+import 'package:humm_cli/src/commands/release/parsers/parse_release_arguments.dart';
+import 'package:humm_cli/src/commands/release/utils/update_build_number.dart';
+import 'package:humm_cli/src/commands/release/utils/update_changelog.dart';
+import 'package:humm_cli/src/services/git/git_service.dart';
 import 'package:mason_logger/mason_logger.dart';
 
 /// A command that automates the release process of an application.

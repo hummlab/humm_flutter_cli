@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:humm/src/core/environment/environment_config.dart';
-import 'package:humm/src/core/exceptions/exception_handler.dart';
-import 'package:humm/src/core/exceptions/exceptions.dart';
+import 'package:humm_cli/src/core/environment/environment_config.dart';
+import 'package:humm_cli/src/core/exceptions/exception_handler.dart';
+import 'package:humm_cli/src/core/exceptions/exceptions.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:http/http.dart' as http;
 

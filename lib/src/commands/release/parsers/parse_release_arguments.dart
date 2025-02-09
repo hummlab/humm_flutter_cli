@@ -1,5 +1,5 @@
 import 'package:args/args.dart';
-import 'package:humm/src/commands/release/models/release_options.dart';
+import 'package:humm_cli/src/commands/release/models/release_options.dart';
 
 /// Parses the release-related arguments passed to the command-line interface (CLI).
 ///

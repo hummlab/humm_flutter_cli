@@ -7,4 +7,4 @@
 /// # see usage
 /// humm --help
 /// ```
-library humm;
+library humm_cli;

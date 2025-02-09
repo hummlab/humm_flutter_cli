@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:humm/src/core/exceptions/exceptions.dart';
+import 'package:humm_cli/src/core/exceptions/exceptions.dart';
 import 'package:mason_logger/mason_logger.dart';
 
 /// A class responsible for handling exceptions and logging error messages.
@@ -29,9 +29,9 @@ class ExceptionHandler {
     int errorCode = ExitCode.software.code;
 
     final String message = switch (exception.runtimeType) {
-      NoWebhooksConfiguredException => (exception as NoWebhooksConfiguredException).message,
-      WebhookNotFoundException => (exception as WebhookNotFoundException).message,
-      InvalidSelectionException => (exception as InvalidSelectionException).message,
+      NoWebhooksConfiguredException exception => exception.message,
+      WebhookNotFoundException exception => exception.message,
+      InvalidSelectionException exception => exception.message,
       NoPubspecFileFoundException => 'No pubspec.yaml file found. Are you in the project\'s main directory?',
       FormatException => 'Invalid version format in pubspec.yaml.',
       NoChangelogFileFoundException => 'No CHANGELOG.md file found.',
@@ -39,9 +39,9 @@ class ExceptionHandler {
       WrongBuildVersionInPubspecException => 'Problem with the build number in pubspec',
       WrongBuildVersionFromCommandLineException => 'Invalid build version',
       FileSystemException => 'File system error: $exception',
-      NoAwsDistributionsConfiguredException => (exception as NoAwsDistributionsConfiguredException).message,
-      AwsDistributionNotFoundException => (exception as AwsDistributionNotFoundException).message,
-      NoAuthTokenException => (exception as NoAuthTokenException).message,
+      NoAwsDistributionsConfiguredException exception => exception.message,
+      AwsDistributionNotFoundException exception => exception.message,
+      NoAuthTokenException exception => exception.message,
       _ => 'An unhandled error occurred: $exception',
     };
 

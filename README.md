@@ -9,7 +9,7 @@ Humm Flutter CLI package - a tool for project management.
 To activate the CLI, run this command in the project's root folder:
 
 ```sh
-dart pub global activate --source path .
+"dart pub global activate --source path ." or "dart pub global activate humm"
 ```
 
 ## Usage

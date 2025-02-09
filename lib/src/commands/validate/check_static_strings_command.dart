@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:args/command_runner.dart';
-import 'package:humm/src/services/files/files_service.dart';
-import 'package:humm/src/core/exceptions/exception_handler.dart';
+import 'package:humm_cli/src/services/files/files_service.dart';
+import 'package:humm_cli/src/core/exceptions/exception_handler.dart';
 import 'package:mason_logger/mason_logger.dart';
 
 /// A command that checks for static strings used as labels in widget definitions.
