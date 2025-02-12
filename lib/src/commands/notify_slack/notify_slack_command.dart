@@ -41,7 +41,9 @@ class NotifySlackCommand extends Command<int> {
         'appName',
         help: 'Application name (required)',
         mandatory: true,
-      );
+      )
+      ..addOption('messageWithChangelog',
+          help: 'With this flag set to true changelog will be send with custom message.');
   }
 
   @override
@@ -80,15 +82,15 @@ class NotifySlackCommand extends Command<int> {
         app: WebhookApp.slack,
       );
       if (webhook == null) {
-        _logger.err(
-            'Available apps: ${EnvironmentConfig.getAvailableApps(WebhookApp.slack).join(", ")}');
+        _logger.err('Available apps: ${EnvironmentConfig.getAvailableApps(WebhookApp.slack).join(", ")}');
         throw WebhookNotFoundException('Webhook not found for: $appName');
       }
 
       final String? message = argResults?['message'];
+      final bool sendCustomMessageWithChangelog = argResults?['messageWithChangelog'] == "true";
 
       // If a custom message is provided, send it to Slack
-      if (message != null) {
+      if (message != null && !sendCustomMessageWithChangelog) {
         _logger.info('Sending message: "$message"');
         await http.post(
           Uri.parse(webhook),
@@ -109,8 +111,7 @@ class NotifySlackCommand extends Command<int> {
       final String wantedLine = pubspecContent.firstWhere(
         (String line) => line.startsWith('version'),
       );
-      final String currentVersion =
-          wantedLine.replaceAll('version:', '').trim().split('+').first;
+      final String currentVersion = wantedLine.replaceAll('version:', '').trim().split('+').first;
 
       final File changelog = File('CHANGELOG.md');
       final List<String> changelogContent = changelog.readAsLinesSync();
@@ -131,21 +132,22 @@ class NotifySlackCommand extends Command<int> {
       }
 
       _logger.info('Sending changelog...');
-
+      String formattedChangelog = '${changesRelatedToVersion.join('\n')}\n';
+      if (message != null && sendCustomMessageWithChangelog) {
+        _logger.info('Adding custom message to changelog $message');
+        formattedChangelog = '$formattedChangelog\n$message';
+      }
       // Send the changelog to Slack
       await http.post(
         Uri.parse(webhook),
         headers: <String, String>{'Content-Type': 'application/json'},
-        body: json.encode(<String, String>{
-          'text': '${changesRelatedToVersion.join('\n')}\n'
-        }),
+        body: json.encode(<String, String>{'text': formattedChangelog}),
       );
 
       _logger.success('Changelog sent');
       return ExitCode.success.code;
     } on Exception catch (e) {
-      final ExceptionHandler exceptionHandler =
-          ExceptionHandler(logger: _logger);
+      final ExceptionHandler exceptionHandler = ExceptionHandler(logger: _logger);
       return exceptionHandler.handleException(e);
     }
   }

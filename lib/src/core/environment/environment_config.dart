@@ -57,7 +57,7 @@ class EnvironmentConfig {
 /// Enum representing different webhook types.
 enum WebhookApp {
   slack('SLACK_WEBHOOK_'),
-  jira('JIRA_WEBHOOK');
+  jira('JIRA_WEBHOOK_URL');
 
   final String prefix;
 
@@ -65,7 +65,7 @@ enum WebhookApp {
 }
 
 enum WebhookAuthTokens {
-  jira('JIRA_AUTH_TOKEN');
+  jira('JIRA_WEBHOOK_TOKEN');
 
   final String tokenKey;
 
