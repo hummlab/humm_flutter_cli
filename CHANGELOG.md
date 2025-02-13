@@ -1,9 +1,15 @@
-# 1.0.1+2 [14.06.2024 15:05]
+# 1.0.3 [13.02.2025 17:38]
 
-- [dev-improvement] Developer changes.
-# 1.0.0+null [18.12.2023 16:57]
+- [fix] Removed "#" from changelog before send to jira
 
-- [dev-improvement] Developer changes.
-# 1.0.2+2 [15.12.2023 16:08]
+# 1.0.2 [07.02.2025 15:05]
 
-- [dev-improvement] Developer changes.
+- [feature] Added optional parameter for notify_slack that allow send custom message with changelog
+
+# 1.0.1 [04.02.2025 15:05]
+
+- [dev-improvement] Added jira webhook command.
+
+# 1.0.0 [01.02.2025 16:57]
+
+- [feature] Publish repository

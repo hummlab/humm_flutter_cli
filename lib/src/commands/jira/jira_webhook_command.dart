@@ -57,6 +57,7 @@ class JiraSendChangelogWebookCommand extends Command<int> {
     if (result.exitCode != 0) {
       changelog += "\nError: " + result.stderr.toString().trim();
     }
+    changelog = changelog.replaceAll(RegExp(r'#+' r'\s*'), '');
 
     // Extract issue numbers from changelog
     final RegExp regex = RegExp(r'\[([A-Za-z]*-\d+|\d+)\]');
