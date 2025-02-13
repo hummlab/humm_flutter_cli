@@ -59,10 +59,9 @@ class JiraSendChangelogWebookCommand extends Command<int> {
     }
 
     // Extract issue numbers from changelog
-    final RegExp regex = RegExp(r'\[(\d+)\]');
+    final RegExp regex = RegExp(r'\[([A-Za-z]*-\d+|\d+)\]');
     final Iterable<RegExpMatch> matches = regex.allMatches(changelog);
     final List<String> taskNumbers = matches.map((RegExpMatch match) => match.group(1)!).toList();
-
     // Prepare the JSON payload
     Map<String, dynamic> payload = <String, dynamic>{
       'issues': taskNumbers,

@@ -41,14 +41,23 @@ humm changelog $version                # Example: humm changelog 7.11.2
 ### Slack Notifications
 
 ```sh
-# Notify Slack about a changelog
+# Notify Slack about a changelog, custom message or both.
+
+#! Remember to set environment variables before use.
+SLACK_WEBHOOK_{$PROJECT_NAME} = WEBHOOK_URL 
+
 humm notify_slack --appName PROJECT_NAME
 
 # Notify Slack with a custom message
 humm notify_slack --appName PROJECT_NAME --message "Custom message"
 
+# Set flag --messageWithChangelog true to send custom message with changelog.
+humm notify_slack --appName PROJECT_NAME --message "Custom message" --messageWithChangelog true
+
+
 # Notify Slack about an error
 humm notify_slack_error --appName PROJECT_NAME
+
 ```
 
 ### Jira changelog webhook
@@ -56,6 +65,11 @@ humm notify_slack_error --appName PROJECT_NAME
 
 ```sh
 # Send changelog for provided version to jira webhook 
+
+#! Remember to set environment variables before use.
+JIRA_WEBHOOK_URL = $JIRA_WEBHOOK_URL
+JIRA_WEBHOOK_TOKEN = $JIRA_WEBHOOK_TOKEN 
+
 # Eg. changelog if changelog is in format x.y.z+y u have to provide entire number with +y value
 
 # 6.5.12+45 [01.01.2020 15:00]
@@ -112,8 +126,8 @@ SLACK_WEBHOOK_PROJECT2=https://hooks.slack.com/services/...
 Configure webhook and token
 
 ```sh
-JIRA_WEBHOOK = $JIRA_WEBHOOK_URL
-JIRA_AUTH_TOKEN = $TOKEN
+JIRA_WEBHOOK_URL = $JIRA_WEBHOOK_URL
+JIRA_WEBHOOK_TOKEN = $JIRA_WEBHOOK_TOKEN
 ```
 
 ### AWS CloudFront Invalidation
@@ -135,8 +149,8 @@ workflows:
         # CloudFront distribution
         CLOUD_DISTRIBUTION: $CLOUDFRONT_ID
         # Jira 
-        JIRA_WEBHOOK: $WEBHOOK
-        JIRA_TOKEN: $TOKEN
+        JIRA_WEBHOOK_URL: $JIRA_WEBHOOK_URL
+        JIRA_WEBHOOK_TOKEN: $JIRA_WEBHOOK_TOKEN
 
 
     scripts:
