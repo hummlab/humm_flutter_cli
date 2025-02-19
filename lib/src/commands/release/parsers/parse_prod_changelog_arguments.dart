@@ -1,4 +1,5 @@
 import 'package:args/args.dart';
+import 'package:humm_cli/src/core/args_keys/prod_changelog_args.dart';
 
 /// Parses the arguments for the production changelog command.
 ///
@@ -17,7 +18,7 @@ import 'package:args/args.dart';
 /// ```
 Future<String> parseProdChangeLogArguments(ArgResults args) async {
   // Retrieve the 'version' argument passed in the command line
-  final String? versionArg = args['version'];
+  final String? versionArg = args[ProdChangelogArgs.version];
 
   // If the version argument is missing or empty, throw a FormatException
   if (versionArg == null || versionArg == '') {

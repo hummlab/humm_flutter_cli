@@ -1,4 +1,6 @@
 import 'package:args/command_runner.dart';
+import 'package:humm_cli/src/args/args_keys/release_args.dart';
+import 'package:humm_cli/src/args/common_args/common_flags_handler.dart';
 import 'package:humm_cli/src/commands/release/models/release_options.dart';
 import 'package:humm_cli/src/core/exceptions/exception_handler.dart';
 import 'package:humm_cli/src/commands/release/parsers/parse_release_arguments.dart';
@@ -26,24 +28,22 @@ class ReleaseCommand extends Command<int> {
   ReleaseCommand({
     required Logger logger,
   }) : _logger = logger {
-    argParser.addFlag(
-      'ci',
-      help: 'Indicates that the command is running in a CI environment.',
-    );
+    CommonFlagsHandler.addCommonFlags(argParser);
+
     argParser.addOption(
-      'branch',
+      ReleaseArgs.branch,
       help: 'Specifies the branch to switch to before releasing.',
     );
     argParser.addOption(
-      'set-version',
+      ReleaseArgs.version,
       help: 'Sets a specific version for the release.',
     );
     argParser.addOption(
-      'set-bn',
+      ReleaseArgs.buildNumber,
       help: 'Sets a specific build number for the release.',
     );
     argParser.addOption(
-      'tag-prefix',
+      ReleaseArgs.tagPrefix,
       help: 'Sets a prefix for the release tag.',
     );
   }
