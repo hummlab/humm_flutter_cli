@@ -49,12 +49,18 @@ class JiraSendChangelogWebookCommand extends Command<int> {
     ProcessResult result = await Process.run('humm', <String>['changelog', releaseVersion]);
 
     String changelog = result.stdout.toString().trim();
-    _logger.info(changelog);
 
     if (result.exitCode != 0) {
       changelog += "\nError: " + result.stderr.toString().trim();
     }
+    final List<String> changelogHeaderAndContent = changelog.split('#');
+
+    changelog = changelogHeaderAndContent.elementAtOrNull(1) ?? changelog;
     changelog = changelog.replaceAll(RegExp(r'#+' r'\s*'), '');
+    changelog = changelog.replaceFirstMapped(RegExp(r'^(.*)', multiLine: true), (Match match) {
+      return '**${match.group(1)}**';
+    });
+    _logger.info('$changelog');
 
     // Extract issue numbers from changelog
     final RegExp regex = RegExp(r'\[([A-Za-z]*-\d+|\d+)\]');

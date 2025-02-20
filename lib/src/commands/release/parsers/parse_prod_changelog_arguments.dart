@@ -1,5 +1,5 @@
 import 'package:args/args.dart';
-import 'package:humm_cli/src/core/args_keys/prod_changelog_args.dart';
+import 'package:humm_cli/src/args/args_keys/prod_changelog_args.dart';
 
 /// Parses the arguments for the production changelog command.
 ///
