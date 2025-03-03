@@ -63,9 +63,15 @@ class JiraSendChangelogWebookCommand extends Command<int> {
     _logger.info('$changelog');
 
     // Extract issue numbers from changelog
-    final RegExp regex = RegExp(r'\[([A-Za-z]*-\d+|\d+)\]');
+    final RegExp regex = RegExp(r'([A-Z]+-\d+)');
     final Iterable<RegExpMatch> matches = regex.allMatches(changelog);
     final List<String> taskNumbers = matches.map((RegExpMatch match) => match.group(1)!).toList();
+    _logger.info('Found tasks ${taskNumbers}');
+
+    if(taskNumbers.isEmpty) {
+      _logger.err('No task numbers found in changelog, Exiting...');
+      return ExitCode.noInput.code;
+    }
     // Prepare the JSON payload
     Map<String, dynamic> payload = <String, dynamic>{
       'issues': taskNumbers,

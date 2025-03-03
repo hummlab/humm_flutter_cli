@@ -95,6 +95,14 @@ humm jira_changelog $VERSION
 humm check_translations
 ```
 
+
+### Check unused assets
+
+```sh
+# Checks if all assets from /assets folder exists in pubspec.yaml then in code
+humm check_unused_assets
+```
+
 ### Check strings
 
 ```sh

@@ -41,6 +41,7 @@ class HummCliCommandRunner extends CompletionCommandRunner<int> {
     addCommand(CheckStaticStringsCommands(logger: _logger));
     addCommand(ChangelogCommand(logger: _logger));
     addCommand(JiraSendChangelogWebookCommand(logger: _logger));
+    addCommand(CheckUnusedAssetsCommand(logger: _logger));
   }
 
   /// Logger instance used for output and logging.
