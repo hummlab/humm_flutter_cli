@@ -21,10 +21,10 @@ To activate the CLI, run this command in the project's root folder:
 humm release
 
 # Options
-humm release --set-version $version        # Set a specific version (default: increment by 1)
+humm release --version $version        # Set a specific version (default: increment by 1)
 humm release --branch $branch              # Specify branch (default: develop)
 humm release --tag-prefix $tag_prefix      # Add a custom tag prefix
-humm release --set-bn $build_number        # Set a specific build number
+humm release --build-number $build_number        # Set a specific build number
 
 ```
 
@@ -64,19 +64,28 @@ humm notify_slack_error --appName PROJECT_NAME
 
 
 ```sh
-# Send changelog for provided version to jira webhook 
+# Send data for jira webhook in format
+{
+  'changelog': changelog,
+  'releaseVersion': releaseVersion,
+}
 
 #! Remember to set environment variables before use.
 JIRA_WEBHOOK_URL = $JIRA_WEBHOOK_URL
 JIRA_WEBHOOK_TOKEN = $JIRA_WEBHOOK_TOKEN 
 
-# Eg. changelog if changelog is in format x.y.z+y u have to provide entire number with +y value
+# Eg. changelog if changelog version is in format x.y.z+y u have to provide entire number with +y value
 
 # 6.5.12+45 [01.01.2020 15:00]
 
 # - [fix] Fix in display wallet info in attendance row [1500]
 
-humm jira_changelog $VERSION
+# In changelog provided above
+
+humm jira_changelog 6.5.12+42
+
+humm jira_changelog $VERSION 
+
 ```
 
 ### Check translations

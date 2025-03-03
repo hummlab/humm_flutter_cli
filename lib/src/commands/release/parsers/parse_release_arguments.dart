@@ -1,4 +1,6 @@
 import 'package:args/args.dart';
+import 'package:humm_cli/src/args/args_keys/common_args.dart';
+import 'package:humm_cli/src/args/args_keys/release_args.dart';
 import 'package:humm_cli/src/commands/release/models/release_options.dart';
 
 /// Parses the release-related arguments passed to the command-line interface (CLI).
@@ -21,22 +23,22 @@ Future<ReleaseOptions> parseReleaseArguments(ArgResults args) async {
   final List<String> prefixes = args.arguments;
 
   // Check if the '--ci' flag is present, indicating CI environment
-  if (prefixes.contains('--ci')) {
+  if (prefixes.contains(CommonArgs.noCi)) {
     ci = true;
-    prefixes.remove('--ci');
+    prefixes.remove(CommonArgs.noCi);
   }
 
   // Retrieve the value of the 'branch' argument, which specifies the branch name
-  final String? branch = args['branch'];
+  final String? branch = args[ReleaseArgs.branch];
 
-  // Retrieve the value of the 'set-version' argument, which specifies the version
-  final String? versionArg = args['set-version'];
+  // Retrieve the value of the 'version' argument, which specifies the version
+  final String? versionArg = args[ReleaseArgs.version];
 
   // Retrieve the value of the 'tag-prefix' argument, which specifies the tag prefix
-  final String? tag = args['tag-prefix'];
+  final String? tag = args[ReleaseArgs.tagPrefix];
 
-  // Retrieve the value of the 'set-bn' argument, which specifies the build number
-  final String? buildNumber = args['set-bn'];
+  // Retrieve the value of the 'build-number' argument, which specifies the build number
+  final String? buildNumber = args[ReleaseArgs.buildNumber];
 
   // Determine the prefix for the release, using the tag if available
   String prefix = '';

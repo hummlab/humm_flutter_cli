@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:args/command_runner.dart';
+import 'package:humm_cli/src/args/args_keys/slack_args.dart';
+import 'package:humm_cli/src/args/common_args/common_flags_handler.dart';
 import 'package:humm_cli/src/core/environment/environment_config.dart';
 import 'package:humm_cli/src/core/exceptions/exception_handler.dart';
 import 'package:humm_cli/src/core/exceptions/exceptions.dart';
@@ -27,16 +29,13 @@ class NotifySlackWithErrorCommand extends Command<int> {
   NotifySlackWithErrorCommand({
     required Logger logger,
   }) : _logger = logger {
-    argParser
-      ..addFlag(
-        'ci',
-        help: 'CI helper',
-      )
-      ..addOption(
-        'appName',
-        help: 'Application name (required)',
-        mandatory: true,
-      );
+    CommonFlagsHandler.addCommonFlags(argParser);
+
+    argParser.addOption(
+      SlackArgs.appName,
+      help: 'Application name (required)',
+      mandatory: true,
+    );
   }
 
   @override
@@ -58,7 +57,7 @@ class NotifySlackWithErrorCommand extends Command<int> {
   @override
   Future<int> run() async {
     try {
-      final String appName = argResults!['appName'] as String;
+      final String appName = argResults![SlackArgs.appName] as String;
 
       // Check if any Slack webhooks are configured
       if (!EnvironmentConfig.hasAnyWebhooks(WebhookApp.slack)) {
@@ -73,8 +72,7 @@ class NotifySlackWithErrorCommand extends Command<int> {
         app: WebhookApp.slack,
       );
       if (webhook == null) {
-        _logger.err(
-            'Available apps: ${EnvironmentConfig.getAvailableApps(WebhookApp.slack).join(", ")}');
+        _logger.err('Available apps: ${EnvironmentConfig.getAvailableApps(WebhookApp.slack).join(", ")}');
         throw WebhookNotFoundException('Webhook not found for: $appName');
       }
 
@@ -84,24 +82,21 @@ class NotifySlackWithErrorCommand extends Command<int> {
       final String wantedLine = pubspecContent.firstWhere(
         (String line) => line.startsWith('version'),
       );
-      final String currentVersion =
-          wantedLine.replaceAll('version:', '').trim().split('+').first;
+      final String currentVersion = wantedLine.replaceAll('version:', '').trim().split('+').first;
 
       // Send an error notification to Slack with the version and app name
       await http.post(
         Uri.parse(webhook),
         headers: <String, String>{'Content-Type': 'application/json'},
         body: json.encode(<String, String>{
-          'text':
-              'Something went wrong during the creation of version: $currentVersion for project: $appName\n'
+          'text': 'Something went wrong during the creation of version: $currentVersion for project: $appName\n'
         }),
       );
 
       _logger.success('Error notification sent');
       return ExitCode.success.code;
     } on Exception catch (e) {
-      final ExceptionHandler exceptionHandler =
-          ExceptionHandler(logger: _logger);
+      final ExceptionHandler exceptionHandler = ExceptionHandler(logger: _logger);
       return exceptionHandler.handleException(e);
     }
   }

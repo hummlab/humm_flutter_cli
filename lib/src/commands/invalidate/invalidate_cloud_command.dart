@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:humm_cli/src/args/common_args/common_flags_handler.dart';
 import 'package:humm_cli/src/core/exceptions/exception_handler.dart';
 import 'package:humm_cli/src/core/environment/environment_config.dart';
 import 'package:humm_cli/src/core/exceptions/exceptions.dart';
@@ -10,11 +11,7 @@ class InvalidateCloudCommand extends Command<int> {
   InvalidateCloudCommand({
     required Logger logger,
   }) : _logger = logger {
-    argParser
-      ..addFlag(
-        'ci',
-        help: 'Ci helper',
-      );
+    CommonFlagsHandler.addCommonFlags(argParser);
   }
 
   @override

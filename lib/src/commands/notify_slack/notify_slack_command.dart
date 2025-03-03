@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:humm_cli/src/args/args_keys/slack_args.dart';
+import 'package:humm_cli/src/args/common_args/common_flags_handler.dart';
 import 'package:humm_cli/src/core/exceptions/exception_handler.dart';
 import 'package:humm_cli/src/core/exceptions/exceptions.dart';
 import 'package:humm_cli/src/core/environment/environment_config.dart';
@@ -28,22 +30,22 @@ class NotifySlackCommand extends Command<int> {
   NotifySlackCommand({
     required Logger logger,
   }) : _logger = logger {
+    CommonFlagsHandler.addCommonFlags(argParser);
+
     argParser
-      ..addFlag(
-        'ci',
-        help: 'CI helper',
-      )
       ..addOption(
-        'message',
+        SlackArgs.message,
         help: 'Add custom message',
       )
       ..addOption(
-        'appName',
+        SlackArgs.appName,
         help: 'Application name (required)',
         mandatory: true,
       )
-      ..addOption('messageWithChangelog',
-          help: 'With this flag set to true changelog will be send with custom message.');
+      ..addOption(
+        SlackArgs.messageWithChangelog,
+        help: 'With this flag set to true changelog will be send with custom message.',
+      );
   }
 
   @override
@@ -67,7 +69,7 @@ class NotifySlackCommand extends Command<int> {
   @override
   Future<int> run() async {
     try {
-      final String appName = argResults!['appName'] as String;
+      final String appName = argResults![SlackArgs.appName] as String;
 
       // Check if any Slack webhooks are configured
       if (!EnvironmentConfig.hasAnyWebhooks(WebhookApp.slack)) {
@@ -86,8 +88,8 @@ class NotifySlackCommand extends Command<int> {
         throw WebhookNotFoundException('Webhook not found for: $appName');
       }
 
-      final String? message = argResults?['message'];
-      final bool sendCustomMessageWithChangelog = argResults?['messageWithChangelog'] == "true";
+      final String? message = argResults?[SlackArgs.message];
+      final bool sendCustomMessageWithChangelog = argResults?[SlackArgs.messageWithChangelog] == "true";
 
       // If a custom message is provided, send it to Slack
       if (message != null && !sendCustomMessageWithChangelog) {

@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:humm_cli/src/args/args_keys/prod_changelog_args.dart';
+import 'package:humm_cli/src/args/common_args/common_flags_handler.dart';
 import 'package:humm_cli/src/core/exceptions/exception_handler.dart';
 import 'package:humm_cli/src/commands/release/parsers/parse_prod_changelog_arguments.dart';
 
@@ -22,12 +24,10 @@ class ProdChangelogCommand extends Command<int> {
   ProdChangelogCommand({
     required Logger logger,
   }) : _logger = logger {
-    argParser.addFlag(
-      'ci',
-      help: 'Indicates that the command is running in a CI environment.',
-    );
+    CommonFlagsHandler.addCommonFlags(argParser);
+
     argParser.addOption(
-      'version',
+      ProdChangelogArgs.version,
       help: 'Specifies the version to process in the changelog.',
     );
   }

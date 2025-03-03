@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:humm_cli/src/args/common_args/common_flags_handler.dart';
 import 'package:humm_cli/src/core/environment/environment_config.dart';
 import 'package:humm_cli/src/core/exceptions/exception_handler.dart';
 import 'package:humm_cli/src/core/exceptions/exceptions.dart';
@@ -15,11 +16,7 @@ class JiraSendChangelogWebookCommand extends Command<int> {
   JiraSendChangelogWebookCommand({
     required Logger logger,
   }) : _logger = logger {
-    argParser
-      ..addFlag(
-        'ci',
-        help: 'CI helper',
-      );
+    CommonFlagsHandler.addCommonFlags(argParser);
   }
 
   @override
@@ -52,12 +49,18 @@ class JiraSendChangelogWebookCommand extends Command<int> {
     ProcessResult result = await Process.run('humm', <String>['changelog', releaseVersion]);
 
     String changelog = result.stdout.toString().trim();
-    _logger.info(changelog);
 
     if (result.exitCode != 0) {
       changelog += "\nError: " + result.stderr.toString().trim();
     }
+    final List<String> changelogHeaderAndContent = changelog.split('#');
+
+    changelog = changelogHeaderAndContent.elementAtOrNull(1) ?? changelog;
     changelog = changelog.replaceAll(RegExp(r'#+' r'\s*'), '');
+    changelog = changelog.replaceFirstMapped(RegExp(r'^(.*)', multiLine: true), (Match match) {
+      return '**${match.group(1)}**';
+    });
+    _logger.info('$changelog');
 
     // Extract issue numbers from changelog
     final RegExp regex = RegExp(r'\[([A-Za-z]*-\d+|\d+)\]');
