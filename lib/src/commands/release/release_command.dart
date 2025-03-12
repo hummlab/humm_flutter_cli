@@ -89,7 +89,7 @@ class ReleaseCommand extends Command<int> {
       final String tag = '${releaseOptions.prefix}$tagVersion';
 
       _logger.info('Creating tag...');
-      GitService.createTag(tag: tag);
+      await GitService.createTag(tag: tag);
       _logger.success('Tag $tag created');
 
       _logger.info('Pushing changes...');
