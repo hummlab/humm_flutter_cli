@@ -5,3 +5,4 @@ export 'validate/check_translations_command.dart';
 export 'validate/check_static_strings_command.dart';
 export 'changelog/changelog_command.dart';
 export 'jira/jira_webhook_command.dart';
+export 'validate/cleanup_arb_command.dart';
