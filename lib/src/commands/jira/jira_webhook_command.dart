@@ -1,4 +1,4 @@
-import 'dart:convert';
+ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
@@ -48,41 +48,42 @@ class JiraSendChangelogWebookCommand extends Command<int> {
     // Run the changelog command
     ProcessResult result = await Process.run('humm', <String>['changelog', releaseVersion]);
 
-    String changelog = result.stdout.toString().trim();
+    if (argResults!.rest.isEmpty) {
+      throw const FormatException('Version argument is required');
+    }
 
+    String changelog = result.stdout.toString().trim();
     if (result.exitCode != 0) {
       changelog += "\nError: " + result.stderr.toString().trim();
     }
-    final List<String> changelogHeaderAndContent = changelog.split('#');
 
-    changelog = changelogHeaderAndContent.elementAtOrNull(1) ?? changelog;
-    changelog = changelog.replaceAll(RegExp(r'#+' r'\s*'), '');
-    changelog = changelog.replaceFirstMapped(RegExp(r'^(.*)', multiLine: true), (Match match) {
-      return '**${match.group(1)}**';
-    });
-    _logger.info('$changelog');
+    _logger.info('Raw changelog output:');
+    _logger.info(changelog);
 
-    // Extract issue numbers from changelog
-    final RegExp regex = RegExp(r'([A-Z]+-\d+)');
-    final Iterable<RegExpMatch> matches = regex.allMatches(changelog);
-    final List<String> taskNumbers = matches.map((RegExpMatch match) => match.group(1)!).toList();
-    _logger.info('Found tasks ${taskNumbers}');
+    final List<String> taskNumbers = _extractTaskNumbers(changelog);
 
-    if(taskNumbers.isEmpty) {
+    _logger.info('Found tasks: $taskNumbers');
+
+    if (taskNumbers.isEmpty) {
       _logger.err('No task numbers found in changelog, Exiting...');
       return ExitCode.noInput.code;
     }
+
+    // Format the changelog for readability in Jira
+    // Keep this simple to avoid breaking the regex matching
+    String formattedChangelog = changelog;
+
     // Prepare the JSON payload
     Map<String, dynamic> payload = <String, dynamic>{
       'issues': taskNumbers,
       'data': <String, String>{
-        'changelog': changelog,
+        'changelog': formattedChangelog,
         'releaseVersion': releaseVersion,
       }
     };
 
     String jsonPayload = jsonEncode(payload);
-
+    _logger.info('Payload: $jsonPayload');
     try {
       final http.Response response = await http.post(
         Uri.parse(jiraWebhookUrl),
@@ -103,5 +104,23 @@ class JiraSendChangelogWebookCommand extends Command<int> {
     }
 
     return ExitCode.success.code;
+  }
+
+  List<String> _extractTaskNumbers(String text) {
+    final List<String> taskNumbers = <String>[];
+
+    final RegExp jiraPattern = RegExp(r'[A-Z]+-\d+');
+    final Iterable<RegExpMatch> jiraMatches = jiraPattern.allMatches(text);
+    for (final RegExpMatch match in jiraMatches) {
+      taskNumbers.add(match.group(0)!);
+    }
+
+    final RegExp bracketPattern = RegExp(r'\[(\d+)\]');
+    final Iterable<RegExpMatch> bracketMatches = bracketPattern.allMatches(text);
+    for (final RegExpMatch match in bracketMatches) {
+      taskNumbers.add(match.group(1)!);
+    }
+
+    return taskNumbers;
   }
 }
