@@ -109,6 +109,19 @@ humm check_unused_assets
 # Find and display all static strings in widgets
 humm check_strings
 ```
+### Clean up ARB files
+
+```sh
+# Find and remove unused ARB keys
+humm cleanup_arb
+
+# Options
+humm cleanup_arb --arb-dir lib/l10n         # Custom ARB directory (default: lib/l10n)
+humm cleanup_arb --source-dir lib           # Custom source directory (default: lib)
+humm cleanup_arb --access-pattern S.current # Translation access pattern (default: S.current)
+humm cleanup_arb --verbose                  # Show detailed output
+humm cleanup_arb --dry-run                  # Show what would be done without making changes
+```
 
 ### Cache Invalidation
 
