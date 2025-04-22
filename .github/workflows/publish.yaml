@@ -1,0 +1,33 @@
+name: Publish to pub.dev
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+      
+      - name: Install dependencies
+        run: dart pub get
+      
+      - name: Analyze
+        run: dart analyze
+      
+      - name: Run tests
+        run: dart test
+      
+      - name: Setup credentials
+        run: |
+          mkdir -p ~/.pub-cache
+          echo '${{ secrets.PUB_DEV_CREDENTIALS }}' > ~/.pub-cache/credentials.json
+      
+      - name: Publish to pub.dev
+        run: dart pub publish --force
