@@ -1,3 +1,7 @@
+# 1.0.6 [22.04.2025 18:00]
+
+- [improvement] Extend jira changelog regex
+
 # 1.0.5 [09.04.2025 16:00]
 
 - [feature] Added new command to clean up arb files
