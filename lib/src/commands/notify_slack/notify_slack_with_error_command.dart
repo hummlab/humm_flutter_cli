@@ -18,10 +18,11 @@ import 'package:mason_logger/mason_logger.dart';
 /// The `notify_slack_error` command accepts the following options:
 /// - `--ci`: Indicates whether the command is running in a Continuous Integration (CI) environment.
 /// - `--appName`: The application name for which the Slack webhook is configured (required).
+/// - `--messageWithChangelog`: When set to true, includes the changelog in the error message.
 ///
 /// Example usage:
 /// ```dart
-/// await runner.run(['notify_slack_error', '--appName', 'myApp']);
+/// await runner.run(['notify_slack_error', '--appName', 'myApp', '--messageWithChangelog', 'true']);
 /// ```
 class NotifySlackWithErrorCommand extends Command<int> {
   final Logger _logger;
@@ -31,11 +32,16 @@ class NotifySlackWithErrorCommand extends Command<int> {
   }) : _logger = logger {
     CommonFlagsHandler.addCommonFlags(argParser);
 
-    argParser.addOption(
-      SlackArgs.appName,
-      help: 'Application name (required)',
-      mandatory: true,
-    );
+    argParser
+      ..addOption(
+        SlackArgs.appName,
+        help: 'Application name (required)',
+        mandatory: true,
+      )
+      ..addOption(
+        SlackArgs.messageWithChangelog,
+        help: 'With this flag set to true changelog will be send with error message.',
+      );
   }
 
   @override
@@ -58,6 +64,7 @@ class NotifySlackWithErrorCommand extends Command<int> {
   Future<int> run() async {
     try {
       final String appName = argResults![SlackArgs.appName] as String;
+      final bool sendErrorWithChangelog = argResults?[SlackArgs.messageWithChangelog] == "true";
 
       // Check if any Slack webhooks are configured
       if (!EnvironmentConfig.hasAnyWebhooks(WebhookApp.slack)) {
@@ -84,13 +91,42 @@ class NotifySlackWithErrorCommand extends Command<int> {
       );
       final String currentVersion = wantedLine.replaceAll('version:', '').trim().split('+').first;
 
+      String errorMessage =
+          'Something went wrong during the creation of version: $currentVersion for project: $appName\n';
+
+      if (sendErrorWithChangelog) {
+        try {
+          final File changelog = File('CHANGELOG.md');
+          if (await changelog.exists()) {
+            final List<String> changelogContent = changelog.readAsLinesSync();
+            if (changelogContent.isNotEmpty) {
+              // Check if the changelog contains the current version
+              if (!changelogContent.first.contains(currentVersion)) {
+                _logger.warn('No changes found for version $currentVersion in changelog');
+              } else {
+                // Collect the changelog entries related to the current version
+                final List<String> changesRelatedToVersion = <String>[];
+                changesRelatedToVersion.add(changelogContent.first);
+
+                for (String line in changelogContent.skip(1)) {
+                  if (line.contains('#')) break;
+                  changesRelatedToVersion.add(line);
+                }
+
+                errorMessage += '\nChangelog:\n${changesRelatedToVersion.join('\n')}\n';
+              }
+            }
+          }
+        } catch (e) {
+          _logger.warn('Failed to read changelog: $e');
+        }
+      }
+
       // Send an error notification to Slack with the version and app name
       await http.post(
         Uri.parse(webhook),
         headers: <String, String>{'Content-Type': 'application/json'},
-        body: json.encode(<String, String>{
-          'text': 'Something went wrong during the creation of version: $currentVersion for project: $appName\n'
-        }),
+        body: json.encode(<String, String>{'text': errorMessage}),
       );
 
       _logger.success('Error notification sent');
