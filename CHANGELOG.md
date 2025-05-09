@@ -1,3 +1,6 @@
+# 1.0.7 [09.05.2025 17:15]
+- [improvement] Extract changelog command code to ChangelogExtractor, use it in notify_slack command
+
 # 1.0.6 [22.04.2025 18:00]
 
 - [improvement] Extend jira changelog regex

@@ -8,6 +8,7 @@ import 'package:humm_cli/src/core/exceptions/exception_handler.dart';
 import 'package:humm_cli/src/core/exceptions/exceptions.dart';
 import 'package:humm_cli/src/core/environment/environment_config.dart';
 import 'package:http/http.dart' as http;
+import 'package:humm_cli/src/services/files/changelog_extractor.dart';
 import 'package:mason_logger/mason_logger.dart';
 
 /// A command for sending notifications to Slack.
@@ -115,30 +116,17 @@ class NotifySlackCommand extends Command<int> {
       );
       final String currentVersion = wantedLine.replaceAll('version:', '').trim().split('+').first;
 
-      final File changelog = File('CHANGELOG.md');
-      final List<String> changelogContent = changelog.readAsLinesSync();
-
-      // Check if the changelog contains the current version
-      if (!changelogContent.first.contains(currentVersion)) {
-        _logger.err('No changes for version $currentVersion');
-        return ExitCode.ioError.code;
-      }
-
-      // Collect the changelog entries related to the current version
-      final List<String> changesRelatedToVersion = <String>[];
-      changesRelatedToVersion.add(changelogContent.first);
-
-      for (String line in changelogContent.skip(1)) {
-        if (line.contains('#')) break;
-        changesRelatedToVersion.add(line);
-      }
+      final List<String> versionChanges = await ChangelogExtractor.extractForVersion(currentVersion);
 
       _logger.info('Sending changelog...');
-      String formattedChangelog = '${changesRelatedToVersion.join('\n')}\n';
+      String formattedChangelog = '${versionChanges.join('\n')}\n';
       if (message != null && sendCustomMessageWithChangelog) {
         _logger.info('Adding custom message to changelog $message');
         formattedChangelog = '$formattedChangelog\n$message';
       }
+
+      formattedChangelog = '*New version of $appName App!*\n${formattedChangelog}';
+
       // Send the changelog to Slack
       await http.post(
         Uri.parse(webhook),

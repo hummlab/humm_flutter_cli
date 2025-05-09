@@ -1,8 +1,7 @@
-import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:humm_cli/src/args/common_args/common_flags_handler.dart';
 import 'package:humm_cli/src/core/exceptions/exception_handler.dart';
-import 'package:humm_cli/src/core/exceptions/exceptions.dart';
+import 'package:humm_cli/src/services/files/changelog_extractor.dart';
 import 'package:mason_logger/mason_logger.dart';
 
 class ChangelogCommand extends Command<int> {
@@ -28,37 +27,7 @@ class ChangelogCommand extends Command<int> {
       }
 
       final String version = argResults!.rest.first;
-      final File changelog = File('CHANGELOG.md');
-
-      if (!changelog.existsSync()) {
-        throw NoChangelogFileFoundException();
-      }
-
-      final List<String> changelogContent = changelog.readAsLinesSync();
-      final List<String> versionChanges = <String>[];
-      bool isVersionFound = false;
-      bool isCollecting = false;
-      for (final String line in changelogContent) {
-        if (line.contains('# $version [')) {
-          isVersionFound = true;
-          isCollecting = true;
-          versionChanges.add(line);
-          continue;
-        }
-
-        if (isCollecting && line.startsWith('# ')) {
-          break;
-        }
-
-        if (isCollecting && line.isNotEmpty) {
-          versionChanges.add(line);
-        }
-      }
-
-      if (!isVersionFound) {
-        _logger.err('No changelog found for version $version');
-        return ExitCode.noInput.code;
-      }
+      final List<String> versionChanges = await ChangelogExtractor.extractForVersion(version);
 
       _logger.info('Changelog for version $version:\n');
       _logger.info(versionChanges.join('\n'));
