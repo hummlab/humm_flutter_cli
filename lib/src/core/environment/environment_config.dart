@@ -34,7 +34,6 @@ class EnvironmentConfig {
   static List<String> getAvailableApps(WebhookApp app) {
     return Platform.environment.keys
         .where((String key) => key.startsWith(app.prefix))
-        .map((String key) => key.replaceAll(app.prefix, ''))
         .toList();
   }
 
@@ -56,7 +55,7 @@ class EnvironmentConfig {
 
 /// Enum representing different webhook types.
 enum WebhookApp {
-  slack('SLACK_WEBHOOK_'),
+  slack('SLACK_WEBHOOK'),
   jira('JIRA_WEBHOOK_URL');
 
   final String prefix;

@@ -2,7 +2,7 @@ name: humm_cli
 description: >
   Humm CLI is a command-line tool for Flutter projects that automates 
   changelog management, translation validation and release processes.
-version: 1.0.7
+version: 1.0.8
 repository: https://github.com/hummlab/humm_flutter_cli
 homepage: https://github.com/hummlab/humm_flutter_cli
 

@@ -44,6 +44,10 @@ class NotifySlackCommand extends Command<int> {
         mandatory: true,
       )
       ..addOption(
+        SlackArgs.url,
+        help: 'Custom webhook url',
+      )
+      ..addOption(
         SlackArgs.messageWithChangelog,
         help: 'With this flag set to true changelog will be send with custom message.',
       );
@@ -71,23 +75,17 @@ class NotifySlackCommand extends Command<int> {
   Future<int> run() async {
     try {
       final String appName = argResults![SlackArgs.appName] as String;
+      final String? webhookUrl = argResults![SlackArgs.appName] as String;
+      final String? slackWebhookEnv = EnvironmentConfig.getWebhook(app: WebhookApp.slack);
 
       // Check if any Slack webhooks are configured
-      if (!EnvironmentConfig.hasAnyWebhooks(WebhookApp.slack)) {
+      if ((webhookUrl == null || webhookUrl.isEmpty) && (slackWebhookEnv == null || slackWebhookEnv.isEmpty)) {
         throw NoWebhooksConfiguredException(
-          'No webhooks configured. Required format: SLACK_WEBHOOK_APPNAME',
+          'No webhooks configured. Add webhook SLACK_WEBHOOK to environment variables or provider webhook url with --url parameter',
         );
       }
 
-      // Retrieve the webhook URL for the specified application
-      final String? webhook = EnvironmentConfig.getWebhook(
-        appName: appName,
-        app: WebhookApp.slack,
-      );
-      if (webhook == null) {
-        _logger.err('Available apps: ${EnvironmentConfig.getAvailableApps(WebhookApp.slack).join(", ")}');
-        throw WebhookNotFoundException('Webhook not found for: $appName');
-      }
+      final String webhook = webhookUrl == null || webhookUrl.isEmpty ? slackWebhookEnv! : webhookUrl;
 
       final String? message = argResults?[SlackArgs.message];
       final bool sendCustomMessageWithChangelog = argResults?[SlackArgs.messageWithChangelog] == "true";

@@ -1,3 +1,6 @@
+# 1.0.8 [12.05.2025 17:15]
+- [improvement] Allow pass custom urls to notify_slack 
+
 # 1.0.7 [09.05.2025 17:15]
 - [improvement] Extract changelog command code to ChangelogExtractor, use it in notify_slack command
 

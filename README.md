@@ -44,7 +44,7 @@ humm changelog $version                # Example: humm changelog 7.11.2
 # Notify Slack about a changelog, custom message or both.
 
 #! Remember to set environment variables before use.
-SLACK_WEBHOOK_{$PROJECT_NAME} = WEBHOOK_URL 
+SLACK_WEBHOOK = WEBHOOK_URL 
 
 humm notify_slack --appName PROJECT_NAME
 
@@ -54,9 +54,13 @@ humm notify_slack --appName PROJECT_NAME --message "Custom message"
 # Set flag --messageWithChangelog true to send custom message with changelog.
 humm notify_slack --appName PROJECT_NAME --message "Custom message" --messageWithChangelog true
 
+# Pass url for slack webhook directly
+humm notify_slack --appName PROJECT_NAME --url "https:/customurl.com"
+
 
 # Notify Slack about an error
 humm notify_slack_error --appName PROJECT_NAME
+
 
 ```
 
@@ -144,11 +148,10 @@ The following environment variables are required for different functionalities:
 
 ### Slack Notifications
 
-Configure webhooks for each project:
+Configure webhook or you can provide it by passing --url param in command:
 
 ```sh
-SLACK_WEBHOOK_PROJECT1=https://hooks.slack.com/services/...
-SLACK_WEBHOOK_PROJECT2=https://hooks.slack.com/services/...
+SLACK_WEBHOOK=https://hooks.slack.com/services/...
 ```
 
 ### Jira changelog webhook
@@ -186,7 +189,7 @@ workflows:
     scripts:
       - name: Send notification
         script: |
-          humm notify_slack --appName PROJECT1 --message "Build completed"
+          humm notify_slack --appName PROJECT1 --message "Build completed" --url YOUR_CUSTOM_URL
       
       - name: Invalidate cache
         script: |

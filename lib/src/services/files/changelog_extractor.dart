@@ -18,7 +18,7 @@ abstract class ChangelogExtractor {
     bool isCollecting = false;
     
     for (final String line in changelogContent) {
-      if (line.contains('# $version [')) {
+      if (line.contains('# $version')) {
         isVersionFound = true;
         isCollecting = true;
         versionChanges.add(line);
