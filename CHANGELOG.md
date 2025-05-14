@@ -1,3 +1,6 @@
+# 1.0.9 [14.05.2025 12:15]
+- [fix] Fixed notify_slack to use SlackArgs.url instead of SlackArgs.appName for webhookUrl
+
 # 1.0.8 [12.05.2025 17:15]
 - [improvement] Allow pass custom urls to notify_slack 
 
