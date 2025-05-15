@@ -75,7 +75,7 @@ class NotifySlackCommand extends Command<int> {
   Future<int> run() async {
     try {
       final String appName = argResults![SlackArgs.appName] as String;
-      final String? webhookUrl = argResults![SlackArgs.url] as String;
+      final String? webhookUrl = argResults?[SlackArgs.url] as String?;
       final String? slackWebhookEnv = EnvironmentConfig.getWebhook(app: WebhookApp.slack);
 
       // Check if any Slack webhooks are configured
