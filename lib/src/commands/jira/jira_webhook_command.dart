@@ -1,13 +1,13 @@
- import 'dart:convert';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:http/http.dart' as http;
 import 'package:humm_cli/src/args/common_args/common_flags_handler.dart';
 import 'package:humm_cli/src/core/environment/environment_config.dart';
 import 'package:humm_cli/src/core/exceptions/exception_handler.dart';
 import 'package:humm_cli/src/core/exceptions/exceptions.dart';
 import 'package:mason_logger/mason_logger.dart';
-import 'package:http/http.dart' as http;
 
 /// Sends a changelog to a Jira webhook.
 class JiraSendChangelogWebookCommand extends Command<int> {
@@ -52,9 +52,14 @@ class JiraSendChangelogWebookCommand extends Command<int> {
       throw const FormatException('Version argument is required');
     }
 
-    String changelog = result.stdout.toString().trim();
+    final String rawOutput = result.stdout.toString();
+    final RegExp changelogPattern = RegExp(r'Changelog for( version)?', caseSensitive: false);
+    final RegExpMatch? match = changelogPattern.firstMatch(rawOutput);
+
+    final String changelog = match != null ? rawOutput.substring(match.start).trim() : rawOutput.trim();
+
     if (result.exitCode != 0) {
-      changelog += "\nError: " + result.stderr.toString().trim();
+      _logger.err('Error getting changelog: ${result.stderr.toString().trim()}');
     }
 
     _logger.info('Raw changelog output:');
