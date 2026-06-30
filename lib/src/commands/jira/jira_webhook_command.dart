@@ -1,13 +1,13 @@
- import 'dart:convert';
-import 'dart:io';
+import 'dart:convert';
 
 import 'package:args/command_runner.dart';
 import 'package:humm_cli/src/args/common_args/common_flags_handler.dart';
 import 'package:humm_cli/src/core/environment/environment_config.dart';
 import 'package:humm_cli/src/core/exceptions/exception_handler.dart';
 import 'package:humm_cli/src/core/exceptions/exceptions.dart';
-import 'package:mason_logger/mason_logger.dart';
+import 'package:humm_cli/src/services/files/changelog_extractor.dart';
 import 'package:http/http.dart' as http;
+import 'package:mason_logger/mason_logger.dart';
 
 /// Sends a changelog to a Jira webhook.
 class JiraSendChangelogWebookCommand extends Command<int> {
@@ -31,7 +31,7 @@ class JiraSendChangelogWebookCommand extends Command<int> {
       throw const FormatException('Version argument is required');
     }
 
-    String releaseVersion = argResults!.rest.first;
+    final String releaseVersion = argResults!.rest.first;
 
     final String? jiraWebhookUrl = EnvironmentConfig.getWebhook(app: WebhookApp.jira);
 
@@ -39,23 +39,13 @@ class JiraSendChangelogWebookCommand extends Command<int> {
       throw NoWebhooksConfiguredException('No Jira webhook found.');
     }
 
-    String? jiraWebhookToken = EnvironmentConfig.getAuthToken(app: WebhookAuthTokens.jira);
+    final String? jiraWebhookToken = EnvironmentConfig.getAuthToken(app: WebhookAuthTokens.jira);
 
     if (jiraWebhookToken == null || jiraWebhookToken.isEmpty) {
       throw NoAuthTokenException('Jira token not provided.');
     }
 
-    // Run the changelog command
-    ProcessResult result = await Process.run('humm', <String>['changelog', releaseVersion]);
-
-    if (argResults!.rest.isEmpty) {
-      throw const FormatException('Version argument is required');
-    }
-
-    String changelog = result.stdout.toString().trim();
-    if (result.exitCode != 0) {
-      changelog += "\nError: " + result.stderr.toString().trim();
-    }
+    final String changelog = (await ChangelogExtractor.extractCompactForVersion(releaseVersion)).join('\n');
 
     _logger.info('Raw changelog output:');
     _logger.info(changelog);
@@ -71,10 +61,10 @@ class JiraSendChangelogWebookCommand extends Command<int> {
 
     // Format the changelog for readability in Jira
     // Keep this simple to avoid breaking the regex matching
-    String formattedChangelog = changelog;
+    final String formattedChangelog = changelog;
 
     // Prepare the JSON payload
-    Map<String, dynamic> payload = <String, dynamic>{
+    final Map<String, dynamic> payload = <String, dynamic>{
       'issues': taskNumbers,
       'data': <String, String>{
         'changelog': formattedChangelog,
@@ -82,7 +72,7 @@ class JiraSendChangelogWebookCommand extends Command<int> {
       }
     };
 
-    String jsonPayload = jsonEncode(payload);
+    final String jsonPayload = jsonEncode(payload);
     _logger.info('Payload: $jsonPayload');
     try {
       final http.Response response = await http.post(
@@ -107,7 +97,7 @@ class JiraSendChangelogWebookCommand extends Command<int> {
   }
 
   List<String> _extractTaskNumbers(String text) {
-    final List<String> taskNumbers = <String>[];
+    final Set<String> taskNumbers = <String>{};
 
     final RegExp jiraPattern = RegExp(r'[A-Z]+-\d+');
     final Iterable<RegExpMatch> jiraMatches = jiraPattern.allMatches(text);
@@ -121,6 +111,6 @@ class JiraSendChangelogWebookCommand extends Command<int> {
       taskNumbers.add(match.group(1)!);
     }
 
-    return taskNumbers;
+    return taskNumbers.toList();
   }
 }
