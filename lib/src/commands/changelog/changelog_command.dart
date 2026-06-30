@@ -27,9 +27,8 @@ class ChangelogCommand extends Command<int> {
       }
 
       final String version = argResults!.rest.first;
-      final List<String> versionChanges = await ChangelogExtractor.extractForVersion(version);
+      final List<String> versionChanges = await ChangelogExtractor.extractCompactForVersion(version);
 
-      _logger.info('Changelog for version $version:\n');
       _logger.info(versionChanges.join('\n'));
 
       return ExitCode.success.code;
