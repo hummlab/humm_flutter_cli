@@ -1,3 +1,9 @@
+# 1.0.11 [30.06.2026 12:05]
+
+- [fix] Clean changelog output for Jira automation comments.
+- [fix] Prevent Jira changelog webhook payload from including dependency resolution logs.
+- [improvement] Set Dart formatter page width to 120.
+
 # 1.0.9 [14.05.2025 12:15]
 - [fix] Fixed notify_slack to use SlackArgs.url instead of SlackArgs.appName for webhookUrl
 
